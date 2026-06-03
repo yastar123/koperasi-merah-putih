@@ -1,19 +1,21 @@
-# [Project name]
+# Sistem Koperasi Merah Putih
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+Aplikasi manajemen koperasi desa berbasis web untuk program Koperasi Merah Putih Indonesia — mencakup simpan pinjam, unit usaha, laporan keuangan, dan distribusi SHU.
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
-- `pnpm run typecheck` — full typecheck across all packages
-- `pnpm run build` — typecheck + build all packages
-- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+- `pnpm --filter @workspace/api-server run dev` — jalankan API server (port 8080)
+- `pnpm --filter @workspace/koperasi run dev` — jalankan frontend (port 24729)
+- `pnpm run typecheck` — typecheck semua package
+- `pnpm run build` — typecheck + build semua package
+- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks dan Zod schema dari OpenAPI spec
+- `pnpm --filter @workspace/db run push` — push perubahan DB schema (dev only)
+- Required env: `DATABASE_URL` — PostgreSQL connection string
 
 ## Stack
 
 - pnpm workspaces, Node.js 24, TypeScript 5.9
+- Frontend: React + Vite + Tailwind CSS + shadcn/ui + Recharts + Wouter
 - API: Express 5
 - DB: PostgreSQL + Drizzle ORM
 - Validation: Zod (`zod/v4`), `drizzle-zod`
@@ -22,24 +24,43 @@ _Replace the heading above with the project's name, and this line with one sente
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `artifacts/koperasi/` — React frontend (5 role dashboards, POS, laporan)
+- `artifacts/api-server/` — Express backend dengan semua route
+- `lib/db/src/schema/` — Drizzle schema (users, koperasi, anggota, simpanan, pinjaman, angsuran, unit_usaha, produk, transaksi, aktivitas_log)
+- `lib/api-spec/openapi.yaml` — OpenAPI spec (source of truth untuk API contract)
+- `lib/api-spec/src/generated/` — Generated hooks & Zod schemas
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- **Session-based auth**: Cookie `session` berisi Base64(JSON{userId}), tidak menggunakan JWT library. Password di-hash SHA256 + salt `koperasi_salt`.
+- **Contract-first API**: OpenAPI spec ditulis dulu, lalu hooks di-generate via Orval. Client menggunakan generated React Query hooks.
+- **Role-based routing**: 5 role (super_admin, pengurus, pengawas, anggota, operator_unit) masing-masing punya layout & sidebar berbeda.
+- **Proxy routing**: Frontend di `/`, API di `/api` — keduanya diakses via shared reverse proxy Replit.
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+- **Super Admin (Dinas Koperasi)**: Dashboard nasional, kelola semua koperasi, verifikasi, laporan agregat
+- **Pengurus**: Dashboard koperasi, kelola anggota, simpanan, pinjaman, unit usaha, laporan keuangan & SHU
+- **Pengawas**: Dashboard audit, laporan keuangan, log aktivitas sistem
+- **Anggota**: Dashboard pribadi, kartu anggota digital, riwayat simpanan & pinjaman, katalog unit usaha
+- **Operator Unit**: POS sistem, manajemen stok, riwayat transaksi
 
-## User preferences
+## Demo Accounts (semua password: `password123`)
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+| Username | Role | Koperasi |
+|---|---|---|
+| superadmin | super_admin | Nasional |
+| pengurus1 | pengurus | Koperasi Sukamaju |
+| pengawas1 | pengawas | Koperasi Sukamaju |
+| anggota1 | anggota | Koperasi Sukamaju |
+| operator1 | operator_unit | Koperasi Sukamaju |
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- Setelah menambah/mengubah schema DB, jalankan `pnpm run typecheck:libs` untuk rebuild DB lib sebelum typecheck API server.
+- Setelah mengubah OpenAPI spec, jalankan codegen lagi untuk update generated hooks.
+- `pnpm run dev` di root **tidak ada** — selalu gunakan `--filter` per artifact.
 
 ## Pointers
 
-- See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details
+- Lihat skill `pnpm-workspace` untuk struktur workspace, TypeScript setup, dan package details

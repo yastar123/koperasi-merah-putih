@@ -1,22 +1,33 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Sistem Koperasi Merah Putih API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
-    description: Health operations
+  - name: auth
+  - name: users
+  - name: koperasi
+  - name: anggota
+  - name: simpanan
+  - name: pinjaman
+  - name: angsuran
+  - name: unit-usaha
+  - name: produk
+  - name: transaksi
+  - name: laporan
+  - name: dashboard
+  - name: aktivitas
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,13 +35,1629 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # ─── AUTH ────────────────────────────────────────────────────────────────────
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginInput"
+      responses:
+        "200":
+          description: Login berhasil
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Kredensial salah
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Logout user
+      responses:
+        "200":
+          description: Logout berhasil
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current user
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  # ─── USERS ───────────────────────────────────────────────────────────────────
+  /users:
+    get:
+      operationId: listUsers
+      tags: [users]
+      summary: List semua user
+      parameters:
+        - in: query
+          name: role
+          schema:
+            type: string
+        - in: query
+          name: koperasiId
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+    post:
+      operationId: createUser
+      tags: [users]
+      summary: Tambah user baru
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserInput"
+      responses:
+        "201":
+          description: User dibuat
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /users/{id}:
+    get:
+      operationId: getUser
+      tags: [users]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+    patch:
+      operationId: updateUser
+      tags: [users]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserUpdate"
+      responses:
+        "200":
+          description: User diupdate
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+    delete:
+      operationId: deleteUser
+      tags: [users]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User dihapus
+
+  # ─── KOPERASI ─────────────────────────────────────────────────────────────────
+  /koperasi:
+    get:
+      operationId: listKoperasi
+      tags: [koperasi]
+      summary: List koperasi
+      parameters:
+        - in: query
+          name: status
+          schema:
+            type: string
+        - in: query
+          name: provinsi
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List koperasi
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Koperasi"
+    post:
+      operationId: createKoperasi
+      tags: [koperasi]
+      summary: Daftarkan koperasi baru
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/KoperasiInput"
+      responses:
+        "201":
+          description: Koperasi didaftarkan
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Koperasi"
+
+  /koperasi/{id}:
+    get:
+      operationId: getKoperasi
+      tags: [koperasi]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Detail koperasi
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Koperasi"
+    patch:
+      operationId: updateKoperasi
+      tags: [koperasi]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/KoperasiUpdate"
+      responses:
+        "200":
+          description: Koperasi diupdate
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Koperasi"
+
+  /koperasi/{id}/verifikasi:
+    post:
+      operationId: verifikasiKoperasi
+      tags: [koperasi]
+      summary: Verifikasi koperasi (Super Admin)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerifikasiInput"
+      responses:
+        "200":
+          description: Status verifikasi diperbarui
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Koperasi"
+
+  # ─── ANGGOTA ─────────────────────────────────────────────────────────────────
+  /anggota:
+    get:
+      operationId: listAnggota
+      tags: [anggota]
+      summary: List anggota koperasi
+      parameters:
+        - in: query
+          name: koperasiId
+          schema:
+            type: integer
+        - in: query
+          name: status
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List anggota
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Anggota"
+    post:
+      operationId: createAnggota
+      tags: [anggota]
+      summary: Daftarkan anggota baru
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnggotaInput"
+      responses:
+        "201":
+          description: Anggota didaftarkan
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Anggota"
+
+  /anggota/{id}:
+    get:
+      operationId: getAnggota
+      tags: [anggota]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Detail anggota
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Anggota"
+    patch:
+      operationId: updateAnggota
+      tags: [anggota]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnggotaUpdate"
+      responses:
+        "200":
+          description: Anggota diupdate
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Anggota"
+
+  /anggota/{id}/verifikasi:
+    post:
+      operationId: verifikasiAnggota
+      tags: [anggota]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerifikasiInput"
+      responses:
+        "200":
+          description: Status anggota diupdate
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Anggota"
+
+  # ─── SIMPANAN ─────────────────────────────────────────────────────────────────
+  /simpanan:
+    get:
+      operationId: listSimpanan
+      tags: [simpanan]
+      summary: List transaksi simpanan
+      parameters:
+        - in: query
+          name: anggotaId
+          schema:
+            type: integer
+        - in: query
+          name: koperasiId
+          schema:
+            type: integer
+        - in: query
+          name: jenis
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List simpanan
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Simpanan"
+    post:
+      operationId: createSimpanan
+      tags: [simpanan]
+      summary: Catat transaksi simpanan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SimpananInput"
+      responses:
+        "201":
+          description: Simpanan dicatat
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Simpanan"
+
+  /simpanan/saldo/{anggotaId}:
+    get:
+      operationId: getSaldoAnggota
+      tags: [simpanan]
+      summary: Saldo simpanan anggota
+      parameters:
+        - in: path
+          name: anggotaId
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Saldo anggota
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SaldoAnggota"
+
+  # ─── PINJAMAN ─────────────────────────────────────────────────────────────────
+  /pinjaman:
+    get:
+      operationId: listPinjaman
+      tags: [pinjaman]
+      summary: List pengajuan pinjaman
+      parameters:
+        - in: query
+          name: anggotaId
+          schema:
+            type: integer
+        - in: query
+          name: koperasiId
+          schema:
+            type: integer
+        - in: query
+          name: status
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List pinjaman
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Pinjaman"
+    post:
+      operationId: createPinjaman
+      tags: [pinjaman]
+      summary: Ajukan pinjaman
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PinjamanInput"
+      responses:
+        "201":
+          description: Pinjaman diajukan
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pinjaman"
+
+  /pinjaman/{id}:
+    get:
+      operationId: getPinjaman
+      tags: [pinjaman]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Detail pinjaman
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pinjaman"
+
+  /pinjaman/{id}/setujui:
+    post:
+      operationId: setujuiPinjaman
+      tags: [pinjaman]
+      summary: Setujui atau tolak pinjaman
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SetujuiPinjamanInput"
+      responses:
+        "200":
+          description: Status pinjaman diperbarui
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pinjaman"
+
+  # ─── ANGSURAN ─────────────────────────────────────────────────────────────────
+  /angsuran:
+    get:
+      operationId: listAngsuran
+      tags: [angsuran]
+      summary: List angsuran
+      parameters:
+        - in: query
+          name: pinjamanId
+          schema:
+            type: integer
+        - in: query
+          name: anggotaId
+          schema:
+            type: integer
+        - in: query
+          name: status
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List angsuran
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Angsuran"
+    post:
+      operationId: bayarAngsuran
+      tags: [angsuran]
+      summary: Bayar angsuran
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BayarAngsuranInput"
+      responses:
+        "201":
+          description: Angsuran dibayar
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Angsuran"
+
+  # ─── UNIT USAHA ───────────────────────────────────────────────────────────────
+  /unit-usaha:
+    get:
+      operationId: listUnitUsaha
+      tags: [unit-usaha]
+      summary: List unit usaha
+      parameters:
+        - in: query
+          name: koperasiId
+          schema:
+            type: integer
+        - in: query
+          name: jenis
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List unit usaha
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UnitUsaha"
+    post:
+      operationId: createUnitUsaha
+      tags: [unit-usaha]
+      summary: Tambah unit usaha
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UnitUsahaInput"
+      responses:
+        "201":
+          description: Unit usaha dibuat
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnitUsaha"
+
+  # ─── PRODUK ───────────────────────────────────────────────────────────────────
+  /produk:
+    get:
+      operationId: listProduk
+      tags: [produk]
+      summary: List produk/stok
+      parameters:
+        - in: query
+          name: unitUsahaId
+          schema:
+            type: integer
+        - in: query
+          name: kategori
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List produk
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Produk"
+    post:
+      operationId: createProduk
+      tags: [produk]
+      summary: Tambah produk
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProdukInput"
+      responses:
+        "201":
+          description: Produk ditambah
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Produk"
+
+  /produk/{id}:
+    patch:
+      operationId: updateProduk
+      tags: [produk]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProdukUpdate"
+      responses:
+        "200":
+          description: Produk diupdate
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Produk"
+
+  # ─── TRANSAKSI ─────────────────────────────────────────────────────────────────
+  /transaksi:
+    get:
+      operationId: listTransaksi
+      tags: [transaksi]
+      summary: List transaksi unit usaha
+      parameters:
+        - in: query
+          name: unitUsahaId
+          schema:
+            type: integer
+        - in: query
+          name: koperasiId
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List transaksi
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Transaksi"
+    post:
+      operationId: createTransaksi
+      tags: [transaksi]
+      summary: Catat transaksi (POS)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TransaksiInput"
+      responses:
+        "201":
+          description: Transaksi dicatat
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Transaksi"
+
+  # ─── LAPORAN ──────────────────────────────────────────────────────────────────
+  /laporan/keuangan:
+    get:
+      operationId: getLaporanKeuangan
+      tags: [laporan]
+      summary: Laporan keuangan koperasi
+      parameters:
+        - in: query
+          name: koperasiId
+          schema:
+            type: integer
+        - in: query
+          name: tahun
+          schema:
+            type: integer
+        - in: query
+          name: bulan
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Laporan keuangan
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LaporanKeuangan"
+
+  /laporan/shu:
+    get:
+      operationId: getLaporanShu
+      tags: [laporan]
+      summary: Laporan SHU
+      parameters:
+        - in: query
+          name: koperasiId
+          schema:
+            type: integer
+        - in: query
+          name: tahun
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Laporan SHU
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LaporanShu"
+
+  /laporan/audit:
+    get:
+      operationId: getLaporanAudit
+      tags: [laporan]
+      summary: Laporan audit pengawas
+      parameters:
+        - in: query
+          name: koperasiId
+          schema:
+            type: integer
+        - in: query
+          name: tahun
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Laporan audit
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LaporanAudit"
+
+  # ─── DASHBOARD ────────────────────────────────────────────────────────────────
+  /dashboard/stats:
+    get:
+      operationId: getDashboardStats
+      tags: [dashboard]
+      summary: Statistik dashboard utama
+      parameters:
+        - in: query
+          name: koperasiId
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Statistik dashboard
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+
+  /dashboard/aktivitas-terbaru:
+    get:
+      operationId: getAktivitasTerbaru
+      tags: [dashboard]
+      summary: Aktivitas terbaru sistem
+      parameters:
+        - in: query
+          name: koperasiId
+          schema:
+            type: integer
+        - in: query
+          name: limit
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Aktivitas terbaru
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AktivitasItem"
+
+  /dashboard/pinjaman-jatuh-tempo:
+    get:
+      operationId: getPinjamanJatuhTempo
+      tags: [dashboard]
+      summary: Pinjaman yang akan jatuh tempo
+      parameters:
+        - in: query
+          name: koperasiId
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Pinjaman jatuh tempo
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Angsuran"
+
+  /dashboard/nasional:
+    get:
+      operationId: getDashboardNasional
+      tags: [dashboard]
+      summary: Statistik nasional (Super Admin)
+      responses:
+        "200":
+          description: Statistik nasional
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardNasional"
+
+  # ─── AKTIVITAS LOG ────────────────────────────────────────────────────────────
+  /aktivitas:
+    get:
+      operationId: listAktivitas
+      tags: [aktivitas]
+      summary: Log aktivitas pengguna
+      parameters:
+        - in: query
+          name: userId
+          schema:
+            type: integer
+        - in: query
+          name: koperasiId
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Log aktivitas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AktivitasLog"
+
 components:
   schemas:
     HealthStatus:
       type: object
+      required: [status]
       properties:
         status:
           type: string
-      required:
-        - status
 
+    # ─── AUTH ──────────────────────────────────────────────────────────────────
+    LoginInput:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+
+    AuthResponse:
+      type: object
+      required: [user, token]
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        token:
+          type: string
+
+    # ─── USER ──────────────────────────────────────────────────────────────────
+    User:
+      type: object
+      required: [id, username, nama, role, aktif, createdAt]
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        nama:
+          type: string
+        email:
+          type: ["string", "null"]
+        telepon:
+          type: ["string", "null"]
+        role:
+          type: string
+          enum: [super_admin, pengurus, pengawas, anggota, operator_unit]
+        koperasiId:
+          type: ["integer", "null"]
+        aktif:
+          type: boolean
+        createdAt:
+          type: string
+
+    UserInput:
+      type: object
+      required: [username, password, nama, role]
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        nama:
+          type: string
+        email:
+          type: string
+        telepon:
+          type: string
+        role:
+          type: string
+          enum: [super_admin, pengurus, pengawas, anggota, operator_unit]
+        koperasiId:
+          type: integer
+
+    UserUpdate:
+      type: object
+      properties:
+        nama:
+          type: string
+        email:
+          type: string
+        telepon:
+          type: string
+        role:
+          type: string
+        aktif:
+          type: boolean
+        koperasiId:
+          type: integer
+
+    # ─── KOPERASI ─────────────────────────────────────────────────────────────
+    Koperasi:
+      type: object
+      required: [id, nama, desa, kecamatan, kabupaten, provinsi, status, createdAt]
+      properties:
+        id:
+          type: integer
+        nama:
+          type: string
+        noBadanHukum:
+          type: ["string", "null"]
+        desa:
+          type: string
+        kecamatan:
+          type: string
+        kabupaten:
+          type: string
+        provinsi:
+          type: string
+        alamat:
+          type: ["string", "null"]
+        telepon:
+          type: ["string", "null"]
+        email:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [pending, aktif, nonaktif, ditolak]
+        tanggalBerdiri:
+          type: ["string", "null"]
+        jumlahAnggota:
+          type: integer
+        totalAset:
+          type: number
+        createdAt:
+          type: string
+
+    KoperasiInput:
+      type: object
+      required: [nama, desa, kecamatan, kabupaten, provinsi]
+      properties:
+        nama:
+          type: string
+        noBadanHukum:
+          type: string
+        desa:
+          type: string
+        kecamatan:
+          type: string
+        kabupaten:
+          type: string
+        provinsi:
+          type: string
+        alamat:
+          type: string
+        telepon:
+          type: string
+        email:
+          type: string
+        tanggalBerdiri:
+          type: string
+
+    KoperasiUpdate:
+      type: object
+      properties:
+        nama:
+          type: string
+        noBadanHukum:
+          type: string
+        alamat:
+          type: string
+        telepon:
+          type: string
+        email:
+          type: string
+        status:
+          type: string
+
+    VerifikasiInput:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+        catatan:
+          type: string
+
+    # ─── ANGGOTA ──────────────────────────────────────────────────────────────
+    Anggota:
+      type: object
+      required: [id, nomorAnggota, nama, nik, koperasiId, status, createdAt]
+      properties:
+        id:
+          type: integer
+        nomorAnggota:
+          type: string
+        nama:
+          type: string
+        nik:
+          type: string
+        tempatLahir:
+          type: ["string", "null"]
+        tanggalLahir:
+          type: ["string", "null"]
+        alamat:
+          type: ["string", "null"]
+        telepon:
+          type: ["string", "null"]
+        pekerjaan:
+          type: ["string", "null"]
+        koperasiId:
+          type: integer
+        userId:
+          type: ["integer", "null"]
+        status:
+          type: string
+          enum: [pending, aktif, nonaktif]
+        totalSimpanan:
+          type: number
+        totalPinjaman:
+          type: number
+        createdAt:
+          type: string
+
+    AnggotaInput:
+      type: object
+      required: [nama, nik, koperasiId]
+      properties:
+        nama:
+          type: string
+        nik:
+          type: string
+        tempatLahir:
+          type: string
+        tanggalLahir:
+          type: string
+        alamat:
+          type: string
+        telepon:
+          type: string
+        pekerjaan:
+          type: string
+        koperasiId:
+          type: integer
+        userId:
+          type: integer
+
+    AnggotaUpdate:
+      type: object
+      properties:
+        nama:
+          type: string
+        alamat:
+          type: string
+        telepon:
+          type: string
+        pekerjaan:
+          type: string
+        status:
+          type: string
+
+    # ─── SIMPANAN ─────────────────────────────────────────────────────────────
+    Simpanan:
+      type: object
+      required: [id, anggotaId, jenis, jumlah, tanggal, keterangan, createdAt]
+      properties:
+        id:
+          type: integer
+        anggotaId:
+          type: integer
+        namaAnggota:
+          type: string
+        jenis:
+          type: string
+          enum: [pokok, wajib, sukarela, penarikan]
+        jumlah:
+          type: number
+        tanggal:
+          type: string
+        keterangan:
+          type: ["string", "null"]
+        operatorId:
+          type: ["integer", "null"]
+        createdAt:
+          type: string
+
+    SimpananInput:
+      type: object
+      required: [anggotaId, jenis, jumlah, tanggal]
+      properties:
+        anggotaId:
+          type: integer
+        jenis:
+          type: string
+          enum: [pokok, wajib, sukarela, penarikan]
+        jumlah:
+          type: number
+        tanggal:
+          type: string
+        keterangan:
+          type: string
+
+    SaldoAnggota:
+      type: object
+      required: [anggotaId, namaAnggota, simpananPokok, simpananWajib, simpananSukarela, totalSimpanan]
+      properties:
+        anggotaId:
+          type: integer
+        namaAnggota:
+          type: string
+        simpananPokok:
+          type: number
+        simpananWajib:
+          type: number
+        simpananSukarela:
+          type: number
+        totalSimpanan:
+          type: number
+
+    # ─── PINJAMAN ─────────────────────────────────────────────────────────────
+    Pinjaman:
+      type: object
+      required: [id, anggotaId, jumlahPinjaman, bungaPersen, tenorBulan, status, tanggalPengajuan, createdAt]
+      properties:
+        id:
+          type: integer
+        anggotaId:
+          type: integer
+        namaAnggota:
+          type: string
+        jumlahPinjaman:
+          type: number
+        bungaPersen:
+          type: number
+        tenorBulan:
+          type: integer
+        angsuranPerBulan:
+          type: number
+        tujuan:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [pending, disetujui, ditolak, lunas, macet]
+        tanggalPengajuan:
+          type: string
+        tanggalDisetujui:
+          type: ["string", "null"]
+        tanggalJatuhTempo:
+          type: ["string", "null"]
+        catatanPengurus:
+          type: ["string", "null"]
+        sisaPinjaman:
+          type: number
+        createdAt:
+          type: string
+
+    PinjamanInput:
+      type: object
+      required: [anggotaId, jumlahPinjaman, tenorBulan, tujuan]
+      properties:
+        anggotaId:
+          type: integer
+        jumlahPinjaman:
+          type: number
+        tenorBulan:
+          type: integer
+        tujuan:
+          type: string
+
+    SetujuiPinjamanInput:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [disetujui, ditolak]
+        bungaPersen:
+          type: number
+        catatanPengurus:
+          type: string
+
+    # ─── ANGSURAN ─────────────────────────────────────────────────────────────
+    Angsuran:
+      type: object
+      required: [id, pinjamanId, anggotaId, namaAnggota, periodeKe, jumlahAngsuran, tanggalJatuhTempo, status]
+      properties:
+        id:
+          type: integer
+        pinjamanId:
+          type: integer
+        anggotaId:
+          type: integer
+        namaAnggota:
+          type: string
+        periodeKe:
+          type: integer
+        jumlahAngsuran:
+          type: number
+        jumlahDibayar:
+          type: ["number", "null"]
+        tanggalJatuhTempo:
+          type: string
+        tanggalBayar:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [belum_bayar, lunas, terlambat]
+
+    BayarAngsuranInput:
+      type: object
+      required: [angsuranId, jumlahDibayar, tanggalBayar]
+      properties:
+        angsuranId:
+          type: integer
+        jumlahDibayar:
+          type: number
+        tanggalBayar:
+          type: string
+
+    # ─── UNIT USAHA ───────────────────────────────────────────────────────────
+    UnitUsaha:
+      type: object
+      required: [id, koperasiId, nama, jenis, aktif, createdAt]
+      properties:
+        id:
+          type: integer
+        koperasiId:
+          type: integer
+        nama:
+          type: string
+        jenis:
+          type: string
+          enum: [sembako, klinik, logistik, cold_storage, lainnya]
+        deskripsi:
+          type: ["string", "null"]
+        aktif:
+          type: boolean
+        omzetBulanIni:
+          type: number
+        createdAt:
+          type: string
+
+    UnitUsahaInput:
+      type: object
+      required: [koperasiId, nama, jenis]
+      properties:
+        koperasiId:
+          type: integer
+        nama:
+          type: string
+        jenis:
+          type: string
+          enum: [sembako, klinik, logistik, cold_storage, lainnya]
+        deskripsi:
+          type: string
+
+    # ─── PRODUK ───────────────────────────────────────────────────────────────
+    Produk:
+      type: object
+      required: [id, unitUsahaId, nama, kategori, hargaBeli, hargaJual, stok, satuan, createdAt]
+      properties:
+        id:
+          type: integer
+        unitUsahaId:
+          type: integer
+        nama:
+          type: string
+        kategori:
+          type: string
+        hargaBeli:
+          type: number
+        hargaJual:
+          type: number
+        stok:
+          type: number
+        satuan:
+          type: string
+        createdAt:
+          type: string
+
+    ProdukInput:
+      type: object
+      required: [unitUsahaId, nama, kategori, hargaBeli, hargaJual, stok, satuan]
+      properties:
+        unitUsahaId:
+          type: integer
+        nama:
+          type: string
+        kategori:
+          type: string
+        hargaBeli:
+          type: number
+        hargaJual:
+          type: number
+        stok:
+          type: number
+        satuan:
+          type: string
+
+    ProdukUpdate:
+      type: object
+      properties:
+        nama:
+          type: string
+        hargaBeli:
+          type: number
+        hargaJual:
+          type: number
+        stok:
+          type: number
+
+    # ─── TRANSAKSI ────────────────────────────────────────────────────────────
+    Transaksi:
+      type: object
+      required: [id, unitUsahaId, totalHarga, tanggal, createdAt]
+      properties:
+        id:
+          type: integer
+        unitUsahaId:
+          type: integer
+        anggotaId:
+          type: ["integer", "null"]
+        namaAnggota:
+          type: ["string", "null"]
+        operatorId:
+          type: integer
+        totalHarga:
+          type: number
+        tanggal:
+          type: string
+        keterangan:
+          type: ["string", "null"]
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/TransaksiItem"
+        createdAt:
+          type: string
+
+    TransaksiItem:
+      type: object
+      required: [produkId, namaProduk, qty, hargaSatuan, subtotal]
+      properties:
+        produkId:
+          type: integer
+        namaProduk:
+          type: string
+        qty:
+          type: number
+        hargaSatuan:
+          type: number
+        subtotal:
+          type: number
+
+    TransaksiInput:
+      type: object
+      required: [unitUsahaId, items, tanggal]
+      properties:
+        unitUsahaId:
+          type: integer
+        anggotaId:
+          type: integer
+        tanggal:
+          type: string
+        keterangan:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/TransaksiItemInput"
+
+    TransaksiItemInput:
+      type: object
+      required: [produkId, qty]
+      properties:
+        produkId:
+          type: integer
+        qty:
+          type: number
+
+    # ─── LAPORAN ──────────────────────────────────────────────────────────────
+    LaporanKeuangan:
+      type: object
+      required: [koperasiId, tahun, bulan, totalPemasukan, totalPengeluaran, labaRugi, totalSimpanan, totalPinjaman, totalAset]
+      properties:
+        koperasiId:
+          type: integer
+        tahun:
+          type: integer
+        bulan:
+          type: ["integer", "null"]
+        totalPemasukan:
+          type: number
+        totalPengeluaran:
+          type: number
+        labaRugi:
+          type: number
+        totalSimpanan:
+          type: number
+        totalPinjaman:
+          type: number
+        totalAset:
+          type: number
+        rincianUnit:
+          type: array
+          items:
+            $ref: "#/components/schemas/RincianUnit"
+
+    RincianUnit:
+      type: object
+      required: [unitUsahaId, namaUnit, omzet, labaUnit]
+      properties:
+        unitUsahaId:
+          type: integer
+        namaUnit:
+          type: string
+        omzet:
+          type: number
+        labaUnit:
+          type: number
+
+    LaporanShu:
+      type: object
+      required: [koperasiId, tahun, totalShu, shuPerAnggota]
+      properties:
+        koperasiId:
+          type: integer
+        tahun:
+          type: integer
+        totalShu:
+          type: number
+        shuPerAnggota:
+          type: array
+          items:
+            $ref: "#/components/schemas/ShuAnggota"
+
+    ShuAnggota:
+      type: object
+      required: [anggotaId, namaAnggota, totalSimpanan, totalBelanja, bagianShu]
+      properties:
+        anggotaId:
+          type: integer
+        namaAnggota:
+          type: string
+        totalSimpanan:
+          type: number
+        totalBelanja:
+          type: number
+        bagianShu:
+          type: number
+
+    LaporanAudit:
+      type: object
+      required: [koperasiId, tahun, temuan, rekomendasi, skorKesehatan]
+      properties:
+        koperasiId:
+          type: integer
+        tahun:
+          type: integer
+        temuan:
+          type: array
+          items:
+            type: string
+        rekomendasi:
+          type: array
+          items:
+            type: string
+        skorKesehatan:
+          type: number
+        statusKeuangan:
+          type: string
+
+    # ─── DASHBOARD ────────────────────────────────────────────────────────────
+    DashboardStats:
+      type: object
+      required: [totalAnggota, anggotaAktif, totalSimpanan, totalPinjaman, pinjamanAktif, tunggakan, omzetBulanIni]
+      properties:
+        totalAnggota:
+          type: integer
+        anggotaAktif:
+          type: integer
+        anggotaBaru:
+          type: integer
+        totalSimpanan:
+          type: number
+        totalPinjaman:
+          type: number
+        pinjamanAktif:
+          type: integer
+        tunggakan:
+          type: number
+        omzetBulanIni:
+          type: number
+        pengajuanPending:
+          type: integer
+
+    DashboardNasional:
+      type: object
+      required: [totalKoperasi, koperasiAktif, koperasiPending, totalAnggota, totalAset, sebaran]
+      properties:
+        totalKoperasi:
+          type: integer
+        koperasiAktif:
+          type: integer
+        koperasiPending:
+          type: integer
+        totalAnggota:
+          type: integer
+        totalAset:
+          type: number
+        sebaran:
+          type: array
+          items:
+            $ref: "#/components/schemas/SebaranProvinsi"
+
+    SebaranProvinsi:
+      type: object
+      required: [provinsi, jumlahKoperasi, jumlahAnggota]
+      properties:
+        provinsi:
+          type: string
+        jumlahKoperasi:
+          type: integer
+        jumlahAnggota:
+          type: integer
+
+    AktivitasItem:
+      type: object
+      required: [id, tipe, deskripsi, waktu]
+      properties:
+        id:
+          type: integer
+        tipe:
+          type: string
+        deskripsi:
+          type: string
+        waktu:
+          type: string
+        userId:
+          type: ["integer", "null"]
+        namaUser:
+          type: ["string", "null"]
+
+    AktivitasLog:
+      type: object
+      required: [id, userId, aksi, tabel, waktu]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        namaUser:
+          type: string
+        aksi:
+          type: string
+        tabel:
+          type: string
+        referensiId:
+          type: ["integer", "null"]
+        detail:
+          type: ["string", "null"]
+        waktu:
+          type: string

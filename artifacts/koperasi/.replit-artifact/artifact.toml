@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Sistem Koperasi Merah Putih"
+version = "1.0.0"
+id = "artifacts/koperasi"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 24729
+
+[services.development]
+run = "pnpm --filter @workspace/koperasi run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/koperasi", "run", "build" ]
+publicDir = "artifacts/koperasi/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24729"
+BASE_PATH = "/"
