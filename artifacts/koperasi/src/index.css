@@ -70,13 +70,10 @@
 :root {
   --button-outline: rgba(0,0,0, .10);
   --badge-outline: rgba(0,0,0, .05);
-
   --opaque-button-border-intensity: -8;
-
   --elevate-1: rgba(0,0,0, .03);
   --elevate-2: rgba(0,0,0, .08);
 
-  /* Deep Red Theme */
   --background: 0 0% 98%;
   --foreground: 0 0% 9%;
 
@@ -88,14 +85,14 @@
   --popover-foreground: 0 0% 9%;
   --popover-border: 0 0% 92%;
 
-  /* Primary is Indonesian Flag Red #CC0000 -> 0, 100%, 40% */
+  /* Primary: Indonesian Flag Red #CC0000 */
   --primary: 0 100% 40%;
   --primary-foreground: 0 0% 100%;
 
   --secondary: 0 0% 90%;
   --secondary-foreground: 0 0% 9%;
 
-  --muted: 0 0% 92%;
+  --muted: 0 0% 93%;
   --muted-foreground: 0 0% 45%;
 
   --accent: 0 0% 92%;
@@ -113,7 +110,7 @@
   --sidebar-border: 0 0% 90%;
   --sidebar-primary: 0 100% 40%;
   --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 0 0% 92%;
+  --sidebar-accent: 0 0% 93%;
   --sidebar-accent-foreground: 0 0% 9%;
   --sidebar-ring: 0 100% 40%;
 
@@ -127,16 +124,16 @@
   --app-font-serif: Georgia, serif;
   --app-font-mono: Menlo, monospace;
   --radius: 0.5rem;
-  
-  --shadow-2xs: 0px 2px 0px 0px rgba(0,0,0,0.02);
-  --shadow-xs: 0px 2px 0px 0px rgba(0,0,0,0.04);
-  --shadow-sm: 0px 2px 0px 0px rgba(0,0,0,0.05), 0px 1px 2px -1px rgba(0,0,0,0.05);
-  --shadow: 0px 2px 0px 0px rgba(0,0,0,0.06), 0px 1px 2px -1px rgba(0,0,0,0.06);
-  --shadow-md: 0px 2px 0px 0px rgba(0,0,0,0.08), 0px 2px 4px -1px rgba(0,0,0,0.08);
-  --shadow-lg: 0px 2px 0px 0px rgba(0,0,0,0.1), 0px 4px 6px -1px rgba(0,0,0,0.1);
-  --shadow-xl: 0px 2px 0px 0px rgba(0,0,0,0.12), 0px 8px 10px -1px rgba(0,0,0,0.12);
-  --shadow-2xl: 0px 2px 0px 0px rgba(0,0,0,0.15);
-  
+
+  --shadow-2xs: 0px 1px 2px rgba(0,0,0,0.04);
+  --shadow-xs: 0px 1px 3px rgba(0,0,0,0.06), 0px 1px 2px rgba(0,0,0,0.04);
+  --shadow-sm: 0px 1px 3px rgba(0,0,0,0.06), 0px 1px 2px -1px rgba(0,0,0,0.06);
+  --shadow: 0px 4px 6px -1px rgba(0,0,0,0.07), 0px 2px 4px -1px rgba(0,0,0,0.06);
+  --shadow-md: 0px 10px 15px -3px rgba(0,0,0,0.08), 0px 4px 6px -2px rgba(0,0,0,0.05);
+  --shadow-lg: 0px 20px 25px -5px rgba(0,0,0,0.09), 0px 10px 10px -5px rgba(0,0,0,0.04);
+  --shadow-xl: 0px 25px 50px -12px rgba(0,0,0,0.15);
+  --shadow-2xl: 0px 50px 100px -20px rgba(0,0,0,0.2);
+
   --sidebar-primary-border: hsl(from hsl(var(--sidebar-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
   --sidebar-accent-border: hsl(from hsl(var(--sidebar-accent)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
   --primary-border: hsl(from hsl(var(--primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
@@ -149,9 +146,7 @@
 .dark {
   --button-outline: rgba(255,255,255, .10);
   --badge-outline: rgba(255,255,255, .05);
-
   --opaque-button-border-intensity: 9;
-
   --elevate-1: rgba(255,255,255, .04);
   --elevate-2: rgba(255,255,255, .09);
 
@@ -185,12 +180,12 @@
   --input: 0 0% 20%;
   --ring: 0 100% 40%;
 
-  --sidebar: 0 0% 12%;
+  --sidebar: 0 0% 10%;
   --sidebar-foreground: 0 0% 98%;
-  --sidebar-border: 0 0% 20%;
+  --sidebar-border: 0 0% 18%;
   --sidebar-primary: 0 100% 40%;
   --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 0 0% 20%;
+  --sidebar-accent: 0 0% 18%;
   --sidebar-accent-foreground: 0 0% 98%;
   --sidebar-ring: 0 100% 40%;
 
@@ -208,6 +203,7 @@
 
   html {
     scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
   }
 
   body {
@@ -216,22 +212,31 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
+  /* Custom scrollbar */
   ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 5px;
+    height: 5px;
   }
-
   ::-webkit-scrollbar-track {
     background: transparent;
   }
-
   ::-webkit-scrollbar-thumb {
     @apply bg-border rounded-full;
+    transition: background 0.2s;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/40;
   }
 
-  ::-webkit-scrollbar-thumb:hover {
-    @apply bg-muted-foreground/30;
+  /* Better focus ring */
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
   }
+
+  /* Fluid typography base */
+  h1 { font-size: clamp(1.5rem, 3vw, 2.25rem); }
+  h2 { font-size: clamp(1.25rem, 2.5vw, 1.875rem); }
 }
 
 @layer utilities {
@@ -239,29 +244,137 @@
     @apply hidden;
   }
 
+  /* ── Page entrance animation ── */
   .page-animate {
-    animation: pageEnter 0.2s ease-out;
+    animation: pageEnter 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
   @keyframes pageEnter {
-    from {
-      opacity: 0;
-      transform: translateY(6px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
 
+  /* ── Skeleton shimmer ── */
   .skeleton {
-    @apply bg-muted animate-pulse rounded-md;
+    position: relative;
+    overflow: hidden;
+    @apply bg-muted rounded-md;
   }
-  [contenteditable][data-placeholder]:empty::before {
-    content: attr(data-placeholder);
-    color: hsl(var(--muted-foreground));
-    pointer-events: none;
+  .skeleton::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255,255,255,0.35) 50%,
+      transparent 100%
+    );
+    animation: shimmer 1.6s infinite;
   }
+  .dark .skeleton::after {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255,255,255,0.06) 50%,
+      transparent 100%
+    );
+  }
+  @keyframes shimmer {
+    100% { transform: translateX(100%); }
+  }
+
+  /* ── Card hover lift ── */
+  .card-lift {
+    @apply transition-all duration-200 ease-out;
+  }
+  .card-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px -5px rgba(0,0,0,0.1), 0 4px 8px -2px rgba(0,0,0,0.06);
+  }
+
+  /* ── Stagger animation for grid/list children ── */
+  .stagger-in > * {
+    animation: staggerFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .stagger-in > *:nth-child(1) { animation-delay: 0ms; }
+  .stagger-in > *:nth-child(2) { animation-delay: 60ms; }
+  .stagger-in > *:nth-child(3) { animation-delay: 120ms; }
+  .stagger-in > *:nth-child(4) { animation-delay: 180ms; }
+  .stagger-in > *:nth-child(n+5) { animation-delay: 240ms; }
+
+  @keyframes staggerFadeIn {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Table row micro-interaction ── */
+  tbody tr {
+    @apply transition-colors duration-100;
+  }
+
+  /* ── Stat number entrance ── */
+  .stat-value {
+    animation: statPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+  @keyframes statPop {
+    from { opacity: 0; transform: scale(0.85) translateY(4px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  /* ── Fade in up ── */
+  .fade-in-up {
+    animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Pulse dot indicator ── */
+  .pulse-dot {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .pulse-dot::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 9999px;
+    background: currentColor;
+    opacity: 0.25;
+    animation: pulseDot 2s ease-out infinite;
+  }
+  @keyframes pulseDot {
+    0%, 100% { transform: scale(1); opacity: 0.25; }
+    50% { transform: scale(1.5); opacity: 0; }
+  }
+
+  /* ── Gradient text ── */
+  .text-gradient-primary {
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(0 100% 55%) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ── Glass effect ── */
+  .glass {
+    @apply bg-background/80 backdrop-blur-md border border-border/50;
+  }
+
+  /* ── Smooth button interactions ── */
+  button, [role="button"] {
+    @apply transition-all duration-150;
+  }
+  button:active:not(:disabled), [role="button"]:active:not([aria-disabled="true"]) {
+    transform: scale(0.98);
+  }
+
+  /* ── Elevated card state utilities ── */
   .toggle-elevate::before,
   .toggle-elevate-2::before {
     content: "";
@@ -274,9 +387,7 @@
   .toggle-elevate.toggle-elevated::before {
     background-color: var(--elevate-2);
   }
-  .border.toggle-elevate::before {
-    inset: -1px;
-  }
+  .border.toggle-elevate::before { inset: -1px; }
   .hover-elevate:not(.no-default-hover-elevate),
   .active-elevate:not(.no-default-active-elevate),
   .hover-elevate-2:not(.no-default-hover-elevate),
@@ -308,5 +419,11 @@
   .border.hover-elevate-2:not(.no-hover-interaction-elevate)::after,
   .border.active-elevate-2:not(.no-active-interaction-elevate)::after {
     inset: -1px;
+  }
+
+  [contenteditable][data-placeholder]:empty::before {
+    content: attr(data-placeholder);
+    color: hsl(var(--muted-foreground));
+    pointer-events: none;
   }
 }

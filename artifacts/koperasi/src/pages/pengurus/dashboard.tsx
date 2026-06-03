@@ -6,35 +6,30 @@ import { formatRupiah, formatDate } from "@/lib/format";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Link } from "wouter";
 
-function StatCard({
-  title,
-  value,
-  subtitle,
-  icon: Icon,
-  iconColor,
-  iconBg,
-  subtitleColor,
-}: {
+interface StatCardProps {
   title: string;
   value: string | number;
   subtitle?: React.ReactNode;
   icon: React.ElementType;
   iconColor: string;
   iconBg: string;
+  accentColor: string;
   subtitleColor?: string;
-}) {
+}
+
+function StatCard({ title, value, subtitle, icon: Icon, iconColor, iconBg, accentColor, subtitleColor }: StatCardProps) {
   return (
-    <Card className="hover:shadow-md transition-shadow">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
-        <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${iconBg}`}>
+    <Card className={`card-lift overflow-hidden border-l-4 ${accentColor}`}>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 pt-4">
+        <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{title}</CardTitle>
+        <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${iconBg} shrink-0`}>
           <Icon className={`h-4 w-4 ${iconColor}`} />
         </div>
       </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold tracking-tight">{value}</div>
+      <CardContent className="pb-4">
+        <div className="text-2xl font-black tracking-tight stat-value">{value}</div>
         {subtitle && (
-          <p className={`text-xs mt-1 flex items-center gap-1 ${subtitleColor || "text-muted-foreground"}`}>
+          <p className={`text-xs mt-1.5 flex items-center gap-1 ${subtitleColor || "text-muted-foreground"}`}>
             {subtitle}
           </p>
         )}
@@ -45,10 +40,10 @@ function StatCard({
 
 function SkeletonCard() {
   return (
-    <Card>
+    <Card className="overflow-hidden border-l-4 border-l-muted">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <div className="skeleton h-4 w-24" />
-        <div className="skeleton h-9 w-9 rounded-lg" />
+        <div className="skeleton h-3 w-24" />
+        <div className="skeleton h-9 w-9 rounded-xl" />
       </CardHeader>
       <CardContent>
         <div className="skeleton h-7 w-32 mb-2" />
@@ -66,12 +61,10 @@ export default function PengurusDashboard() {
     { koperasiId: koperasiId! },
     { query: { enabled: !!koperasiId } }
   );
-
   const { data: aktivitas, isLoading: isLoadingAktivitas } = useGetAktivitasTerbaru(
     { koperasiId: koperasiId! },
     { query: { enabled: !!koperasiId } }
   );
-
   const { data: jatuhTempo, isLoading: isLoadingJatuhTempo } = useGetPinjamanJatuhTempo(
     { koperasiId: koperasiId! },
     { query: { enabled: !!koperasiId } }
@@ -81,12 +74,18 @@ export default function PengurusDashboard() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold tracking-tight">Selamat datang, {user?.nama?.split(" ")[0]}</h2>
-        <p className="text-muted-foreground text-sm">Ringkasan kondisi koperasi hari ini.</p>
+      {/* Header */}
+      <div className="space-y-1">
+        <h2 className="text-2xl font-black tracking-tight">
+          Selamat datang, {user?.nama?.split(" ")[0]} 👋
+        </h2>
+        <p className="text-muted-foreground text-sm">
+          Ringkasan kondisi koperasi hari ini
+        </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {/* Stat cards */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 stagger-in">
         {isLoading ? (
           Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)
         ) : (
@@ -94,27 +93,28 @@ export default function PengurusDashboard() {
             <StatCard
               title="Anggota Aktif"
               value={stats?.anggotaAktif ?? 0}
-              subtitle={<>Dari total {stats?.totalAnggota ?? 0} terdaftar</>}
+              subtitle={<>Dari {stats?.totalAnggota ?? 0} terdaftar</>}
               icon={Users}
               iconBg="bg-blue-50"
               iconColor="text-blue-600"
+              accentColor="border-l-blue-400"
             />
             <StatCard
               title="Total Simpanan"
               value={formatRupiah(stats?.totalSimpanan ?? 0)}
+              subtitle={<><TrendingUp className="h-3 w-3" /> Semua jenis simpanan</>}
+              subtitleColor="text-green-600"
               icon={Wallet}
               iconBg="bg-green-50"
               iconColor="text-green-600"
+              accentColor="border-l-green-400"
             />
             <StatCard
               title="Pinjaman Aktif"
               value={formatRupiah(stats?.pinjamanAktif ?? 0)}
               subtitle={
                 (stats?.tunggakan ?? 0) > 0 ? (
-                  <>
-                    <AlertTriangle className="h-3 w-3" />
-                    {formatRupiah(stats?.tunggakan ?? 0)} tunggakan
-                  </>
+                  <><AlertTriangle className="h-3 w-3" /> {formatRupiah(stats?.tunggakan ?? 0)} tunggakan</>
                 ) : (
                   <>Tidak ada tunggakan</>
                 )
@@ -123,25 +123,32 @@ export default function PengurusDashboard() {
               icon={CreditCard}
               iconBg="bg-orange-50"
               iconColor="text-orange-600"
+              accentColor="border-l-orange-400"
             />
             <StatCard
               title="Omzet Bulan Ini"
               value={formatRupiah(stats?.omzetBulanIni ?? 0)}
               subtitle={<><TrendingUp className="h-3 w-3" /> Semua unit usaha</>}
-              subtitleColor="text-green-600"
+              subtitleColor="text-primary"
               icon={Activity}
               iconBg="bg-primary/10"
               iconColor="text-primary"
+              accentColor="border-l-primary"
             />
           </>
         )}
       </div>
 
+      {/* Detail cards */}
       <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-base">Pinjaman Jatuh Tempo</CardTitle>
-            <Link href="/pengurus/pinjaman" className="text-xs text-primary hover:underline flex items-center gap-1">
+        {/* Pinjaman jatuh tempo */}
+        <Card className="card-lift">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <div>
+              <CardTitle className="text-base font-semibold">Pinjaman Jatuh Tempo</CardTitle>
+              <p className="text-xs text-muted-foreground mt-0.5">Perlu perhatian segera</p>
+            </div>
+            <Link href="/pengurus/pinjaman" className="text-xs text-primary hover:underline flex items-center gap-1 font-medium">
               Lihat semua <ArrowRight className="h-3 w-3" />
             </Link>
           </CardHeader>
@@ -149,7 +156,7 @@ export default function PengurusDashboard() {
             {isLoadingJatuhTempo ? (
               <div className="space-y-3">
                 {Array.from({ length: 3 }).map((_, i) => (
-                  <div key={i} className="flex justify-between">
+                  <div key={i} className="flex justify-between items-center">
                     <div className="skeleton h-4 w-32" />
                     <div className="skeleton h-4 w-20" />
                   </div>
@@ -159,66 +166,77 @@ export default function PengurusDashboard() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Anggota</TableHead>
-                    <TableHead className="text-right">Sisa</TableHead>
-                    <TableHead className="text-right">Jatuh Tempo</TableHead>
+                    <TableHead className="text-xs">Anggota</TableHead>
+                    <TableHead className="text-right text-xs">Sisa</TableHead>
+                    <TableHead className="text-right text-xs">Jatuh Tempo</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {jatuhTempo.slice(0, 5).map((pinjaman) => (
                     <TableRow key={pinjaman.id}>
-                      <TableCell className="font-medium">
+                      <TableCell className="font-medium text-sm py-2">
                         <Link href={`/pengurus/pinjaman/${pinjaman.id}`} className="hover:underline text-primary">
                           {pinjaman.namaAnggota}
                         </Link>
                       </TableCell>
-                      <TableCell className="text-right font-medium">{formatRupiah(pinjaman.sisaPinjaman || 0)}</TableCell>
-                      <TableCell className="text-right text-red-500 font-medium">{formatDate(pinjaman.tanggalJatuhTempo)}</TableCell>
+                      <TableCell className="text-right text-sm py-2 font-semibold">
+                        {formatRupiah(pinjaman.sisaPinjaman || 0)}
+                      </TableCell>
+                      <TableCell className="text-right text-sm py-2 text-red-500 font-medium">
+                        {formatDate(pinjaman.tanggalJatuhTempo)}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
             ) : (
-              <div className="flex flex-col items-center justify-center py-8 text-center">
-                <div className="text-3xl mb-2">✅</div>
-                <p className="text-sm font-medium">Tidak ada pinjaman jatuh tempo</p>
-                <p className="text-xs text-muted-foreground mt-1">Semua angsuran dalam kondisi baik.</p>
+              <div className="flex flex-col items-center justify-center py-10 text-center">
+                <div className="h-12 w-12 rounded-2xl bg-green-50 flex items-center justify-center mb-3">
+                  <TrendingUp className="h-6 w-6 text-green-600" />
+                </div>
+                <p className="text-sm font-semibold text-green-700">Semua angsuran lancar</p>
+                <p className="text-xs text-muted-foreground mt-1">Tidak ada pinjaman jatuh tempo</p>
               </div>
             )}
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-base">Aktivitas Terbaru</CardTitle>
+        {/* Aktivitas terbaru */}
+        <Card className="card-lift">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-semibold">Aktivitas Terbaru</CardTitle>
+            <p className="text-xs text-muted-foreground mt-0.5">Log transaksi & perubahan</p>
           </CardHeader>
           <CardContent>
             {isLoadingAktivitas ? (
               <div className="space-y-4">
                 {Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="space-y-2">
+                  <div key={i} className="space-y-1.5">
                     <div className="skeleton h-4 w-full" />
                     <div className="skeleton h-3 w-28" />
                   </div>
                 ))}
               </div>
             ) : aktivitas && aktivitas.length > 0 ? (
-              <div className="space-y-3">
-                {aktivitas.map((item) => (
-                  <div key={item.id} className="flex flex-col gap-1 pb-3 border-b border-border/50 last:border-0 last:pb-0">
-                    <p className="text-sm leading-snug">{item.deskripsi}</p>
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <span className="font-medium">{item.namaUser || "Sistem"}</span>
-                      <span>·</span>
-                      <span>{formatDate(item.waktu)}</span>
+              <div className="space-y-2.5">
+                {aktivitas.map((item, i) => (
+                  <div key={item.id} className="flex gap-3 items-start pb-2.5 border-b border-border/50 last:border-0 last:pb-0">
+                    <div className="h-2 w-2 rounded-full bg-primary/60 shrink-0 mt-1.5" />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm leading-snug">{item.deskripsi}</p>
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
+                        <span className="font-medium">{item.namaUser || "Sistem"}</span>
+                        <span>·</span>
+                        <span>{formatDate(item.waktu)}</span>
+                      </div>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center py-8 text-center">
-                <Activity className="h-8 w-8 text-muted-foreground/30 mb-2" />
-                <p className="text-sm text-muted-foreground">Belum ada aktivitas.</p>
+              <div className="flex flex-col items-center justify-center py-10 text-center">
+                <Activity className="h-10 w-10 text-muted-foreground/20 mb-3" />
+                <p className="text-sm text-muted-foreground">Belum ada aktivitas tercatat.</p>
               </div>
             )}
           </CardContent>
