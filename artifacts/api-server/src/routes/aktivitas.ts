@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db, aktivitasLogTable, usersTable } from "@workspace/db";
-import { eq, and } from "drizzle-orm";
+import { eq, and, desc } from "drizzle-orm";
 
 const router = Router();
 
@@ -11,8 +11,8 @@ router.get("/aktivitas", async (req, res) => {
   if (userId) filters.push(eq(aktivitasLogTable.userId, Number(userId)));
 
   const list = filters.length
-    ? await db.select().from(aktivitasLogTable).where(and(...filters)).orderBy(aktivitasLogTable.waktu).limit(100)
-    : await db.select().from(aktivitasLogTable).orderBy(aktivitasLogTable.waktu).limit(100);
+    ? await db.select().from(aktivitasLogTable).where(and(...filters)).orderBy(desc(aktivitasLogTable.waktu)).limit(100)
+    : await db.select().from(aktivitasLogTable).orderBy(desc(aktivitasLogTable.waktu)).limit(100);
 
   const enriched = await Promise.all(list.map(async a => {
     const [u] = await db.select({ nama: usersTable.nama }).from(usersTable).where(eq(usersTable.id, a.userId)).limit(1);
