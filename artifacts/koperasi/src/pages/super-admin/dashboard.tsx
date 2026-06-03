@@ -37,7 +37,7 @@ export default function SuperAdminDashboard() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
+      <div className="page-animate space-y-6">
         <div className="space-y-1">
           <div className="skeleton h-7 w-64" />
           <div className="skeleton h-4 w-48" />
@@ -78,7 +78,7 @@ export default function SuperAdminDashboard() {
     : 0;
 
   return (
-    <div className="space-y-6">
+    <div className="page-animate space-y-6">
       {/* Header */}
       <div className="space-y-1">
         <h2 className="text-2xl font-black tracking-tight">Dashboard Nasional</h2>

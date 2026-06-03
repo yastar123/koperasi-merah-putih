@@ -31,7 +31,7 @@ function ProdukKatalog({ unitUsahaId }: { unitUsahaId: number }) {
   );
 
   if (!produkList || produkList.length === 0) return (
-    <div className="flex flex-col items-center justify-center py-8 text-center">
+    <div className="page-animate flex flex-col items-center justify-center py-8 text-center">
       <Package className="h-8 w-8 text-muted-foreground/30 mb-2" />
       <p className="text-sm text-muted-foreground">Belum ada produk tersedia.</p>
     </div>
@@ -66,8 +66,8 @@ export default function AnggotaBelanja() {
   const [expandedUnit, setExpandedUnit] = useState<number | null>(null);
 
   const { data: units, isLoading } = useListUnitUsaha(
-    { koperasiId: user?.koperasiId },
-    { query: { enabled: !!user?.koperasiId } }
+    { koperasiId: user?.koperasiId ?? undefined },
+    { query: { queryKey: [], enabled: !!user?.koperasiId } }
   );
 
   return (

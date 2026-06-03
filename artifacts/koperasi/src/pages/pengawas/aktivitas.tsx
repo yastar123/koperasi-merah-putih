@@ -24,12 +24,12 @@ const TABLE_ICONS: Record<string, React.ElementType> = {
 export default function PengawasAktivitas() {
   const { user } = useAuth();
   const { data: aktivitasList, isLoading } = useListAktivitas(
-    { koperasiId: user?.koperasiId },
-    { query: { enabled: !!user?.koperasiId } }
+    { koperasiId: user?.koperasiId ?? undefined },
+    { query: { queryKey: [], enabled: !!user?.koperasiId } }
   );
 
   return (
-    <div className="space-y-6">
+    <div className="page-animate space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="space-y-1">
@@ -96,7 +96,7 @@ export default function PengawasAktivitas() {
         </CardHeader>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
-            <Table>
+            <div className="table-responsive"><Table>
               <TableHeader>
                 <TableRow>
                   <TableHead className="pl-4">Waktu</TableHead>
@@ -165,7 +165,7 @@ export default function PengawasAktivitas() {
                   })
                 )}
               </TableBody>
-            </Table>
+            </Table></div>
           </div>
           {!isLoading && aktivitasList && aktivitasList.length > 0 && (
             <div className="px-4 py-3 border-t text-xs text-muted-foreground">

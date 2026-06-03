@@ -1,26 +1,46 @@
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
-import { useGetDashboardStats, useListProduk } from "@workspace/api-client-react";
+import { useGetDashboardStats, useListProduk, useListUnitUsaha } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatRupiah } from "@/lib/format";
-import { ShoppingCart, PackageOpen, TrendingUp, AlertTriangle, ArrowRight, Zap } from "lucide-react";
+import { ShoppingCart, PackageOpen, TrendingUp, AlertTriangle, ArrowRight, Zap, Store } from "lucide-react";
 import { Link } from "wouter";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function OperatorDashboard() {
   const { user } = useAuth();
   const koperasiId = user?.koperasiId;
-  const unitUsahaId = 1;
+  const [selectedUnitId, setSelectedUnitId] = useState<number | null>(null);
 
-  const { data: stats, isLoading } = useGetDashboardStats(
-    { koperasiId: koperasiId! },
-    { query: { enabled: !!koperasiId } }
+  const { data: stats, isLoading: isLoadingStats } = useGetDashboardStats(
+    { koperasiId: koperasiId ?? undefined },
+    { query: { queryKey: [], enabled: !!koperasiId } }
   );
-  const { data: produkList, isLoading: isLoadingProduk } = useListProduk({ unitUsahaId });
+
+  const { data: unitList, isLoading: isLoadingUnits } = useListUnitUsaha(
+    { koperasiId: koperasiId ?? undefined },
+    { query: { queryKey: [], enabled: !!koperasiId } }
+  );
+
+  useEffect(() => {
+    if (unitList && unitList.length > 0 && selectedUnitId === null) {
+      setSelectedUnitId(unitList[0].id);
+    }
+  }, [unitList, selectedUnitId]);
+
+  const unitUsahaId = selectedUnitId ?? 0;
+
+  const { data: produkList, isLoading: isLoadingProduk } = useListProduk(
+    { unitUsahaId },
+    { query: { queryKey: [], enabled: unitUsahaId > 0 } }
+  );
 
   const produkStokMinim = produkList?.filter(p => p.stok <= 5) ?? [];
+  const selectedUnit = unitList?.find(u => u.id === selectedUnitId);
 
-  if (isLoading || isLoadingProduk) {
+  if (isLoadingStats || isLoadingUnits) {
     return (
-      <div className="space-y-6">
+      <div className="page-animate space-y-6">
         <div className="space-y-1">
           <div className="skeleton h-7 w-64" />
           <div className="skeleton h-4 w-48" />
@@ -38,17 +58,61 @@ export default function OperatorDashboard() {
     );
   }
 
+  if (!unitList || unitList.length === 0) {
+    return (
+      <div className="space-y-6">
+        <div className="space-y-1">
+          <h2 className="text-2xl font-black tracking-tight">
+            Selamat datang, {user?.nama?.split(" ")[0]} 👋
+          </h2>
+          <p className="text-muted-foreground text-sm">Ringkasan aktivitas unit usaha hari ini</p>
+        </div>
+        <div className="flex flex-col items-center justify-center py-16 text-center rounded-xl border-2 border-dashed border-border/60 bg-muted/20">
+          <div className="h-14 w-14 rounded-2xl bg-muted/60 flex items-center justify-center mb-4">
+            <Store className="h-7 w-7 text-muted-foreground/40" />
+          </div>
+          <p className="font-semibold">Tidak ada unit usaha terdaftar</p>
+          <p className="text-sm text-muted-foreground mt-1">Hubungi pengurus untuk menambahkan unit usaha terlebih dahulu.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="space-y-1">
-        <h2 className="text-2xl font-black tracking-tight">
-          Selamat datang, {user?.nama?.split(" ")[0]} 👋
-        </h2>
-        <p className="text-muted-foreground text-sm">Ringkasan aktivitas unit usaha hari ini</p>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div className="space-y-1">
+          <h2 className="text-2xl font-black tracking-tight">
+            Selamat datang, {user?.nama?.split(" ")[0]} 👋
+          </h2>
+          <p className="text-muted-foreground text-sm">Ringkasan aktivitas unit usaha hari ini</p>
+        </div>
+        {unitList.length > 1 && (
+          <Select
+            value={String(selectedUnitId)}
+            onValueChange={(v) => setSelectedUnitId(Number(v))}
+          >
+            <SelectTrigger className="w-full sm:w-[220px] shrink-0">
+              <Store className="mr-2 h-4 w-4 text-muted-foreground" />
+              <SelectValue placeholder="Pilih unit usaha" />
+            </SelectTrigger>
+            <SelectContent>
+              {unitList.map(u => (
+                <SelectItem key={u.id} value={String(u.id)}>{u.nama}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
       </div>
 
-      {/* Alert banner */}
+      {selectedUnit && unitList.length === 1 && (
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Store className="h-3.5 w-3.5" />
+          <span className="font-medium">{selectedUnit.nama}</span>
+          <span className="text-xs capitalize bg-muted px-2 py-0.5 rounded-full">{selectedUnit.jenis?.replace(/_/g, " ")}</span>
+        </div>
+      )}
+
       {produkStokMinim.length > 0 && (
         <div className="flex items-center gap-3 rounded-xl border border-yellow-200 bg-yellow-50 px-4 py-3">
           <div className="h-8 w-8 rounded-lg bg-yellow-100 flex items-center justify-center shrink-0">
@@ -61,7 +125,6 @@ export default function OperatorDashboard() {
         </div>
       )}
 
-      {/* Stat cards */}
       <div className="grid gap-4 sm:grid-cols-3 stagger-in">
         <Card className="card-lift overflow-hidden border-l-4 border-l-primary">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 pt-4">
@@ -84,7 +147,9 @@ export default function OperatorDashboard() {
             </div>
           </CardHeader>
           <CardContent className="pb-4">
-            <div className="text-2xl font-black stat-value">{produkList?.length ?? 0}</div>
+            <div className="text-2xl font-black stat-value">
+              {isLoadingProduk ? <span className="skeleton h-7 w-12 inline-block" /> : (produkList?.length ?? 0)}
+            </div>
             <p className="text-xs text-muted-foreground mt-1.5">Produk terdaftar</p>
           </CardContent>
         </Card>
@@ -100,7 +165,7 @@ export default function OperatorDashboard() {
           </CardHeader>
           <CardContent className="pb-4">
             <div className={`text-2xl font-black stat-value ${produkStokMinim.length > 0 ? "text-yellow-600" : "text-green-700"}`}>
-              {produkStokMinim.length}
+              {isLoadingProduk ? <span className="skeleton h-7 w-8 inline-block" /> : produkStokMinim.length}
             </div>
             <p className="text-xs text-muted-foreground mt-1.5">
               {produkStokMinim.length > 0 ? "Produk perlu restok" : "Semua stok aman"}
@@ -110,7 +175,6 @@ export default function OperatorDashboard() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        {/* Quick access */}
         <Card className="card-lift">
           <CardHeader className="pb-2">
             <CardTitle className="text-base font-semibold flex items-center gap-2">
@@ -139,8 +203,7 @@ export default function OperatorDashboard() {
           </CardContent>
         </Card>
 
-        {/* Critical stock list or all-clear */}
-        {produkStokMinim.length > 0 ? (
+        {!isLoadingProduk && produkStokMinim.length > 0 ? (
           <Card className="card-lift border-yellow-200">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
@@ -176,8 +239,12 @@ export default function OperatorDashboard() {
             <div className="h-14 w-14 rounded-2xl bg-green-100 flex items-center justify-center mb-4">
               <PackageOpen className="h-7 w-7 text-green-600" />
             </div>
-            <h3 className="font-semibold text-green-800">Stok Semua Produk Aman</h3>
-            <p className="text-sm text-green-600/80 mt-1">Semua produk memiliki stok yang cukup</p>
+            <h3 className="font-semibold text-green-800">
+              {isLoadingProduk ? "Memuat data stok..." : "Stok Semua Produk Aman"}
+            </h3>
+            <p className="text-sm text-green-600/80 mt-1">
+              {isLoadingProduk ? "Mohon tunggu sebentar" : "Semua produk memiliki stok yang cukup"}
+            </p>
           </Card>
         )}
       </div>

@@ -11,6 +11,10 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { CheckCircle, XCircle, Search, CreditCard } from "lucide-react";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const STATUS_LABELS: Record<string, string> = {
   pending: "Menunggu",
@@ -20,33 +24,44 @@ const STATUS_LABELS: Record<string, string> = {
   macet: "Macet",
 };
 
+type VerifikasiAction = { id: number; nama: string; jumlah: number; status: "disetujui" | "ditolak" } | null;
+
 export default function PengurusPinjamanList() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [statusFilter, setStatusFilter] = useState("all");
   const [search, setSearch] = useState("");
+  const [pendingAction, setPendingAction] = useState<VerifikasiAction>(null);
 
   const { data: pinjamanList, isLoading, refetch } = useListPinjaman(
-    { koperasiId: user?.koperasiId },
-    { query: { enabled: !!user?.koperasiId } }
+    { koperasiId: user?.koperasiId ?? undefined },
+    { query: { queryKey: [], enabled: !!user?.koperasiId } }
   );
 
   const setujuiPinjaman = useSetujuiPinjaman({
     mutation: {
       onSuccess: () => {
         toast({ title: "Status pinjaman diperbarui" });
+        setPendingAction(null);
         refetch();
       },
       onError: () => {
         toast({ title: "Gagal memperbarui status", variant: "destructive" });
+        setPendingAction(null);
       }
     }
   });
 
-  const handleVerifikasi = (id: number, status: "disetujui" | "ditolak") => {
+  const handleConfirm = () => {
+    if (!pendingAction) return;
     setujuiPinjaman.mutate({
-      id,
-      data: { status, catatanPengurus: status === "disetujui" ? "Disetujui oleh pengurus" : "Ditolak oleh pengurus" }
+      id: pendingAction.id,
+      data: {
+        status: pendingAction.status,
+        catatanPengurus: pendingAction.status === "disetujui"
+          ? "Disetujui oleh pengurus"
+          : "Ditolak oleh pengurus",
+      }
     });
   };
 
@@ -59,7 +74,7 @@ export default function PengurusPinjamanList() {
   const pendingCount = pinjamanList?.filter(p => p.status === "pending").length ?? 0;
 
   return (
-    <div className="space-y-6">
+    <div className="page-animate space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Daftar Pinjaman</h2>
@@ -102,7 +117,7 @@ export default function PengurusPinjamanList() {
       <Card>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
-            <Table>
+            <div className="table-responsive"><Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Tanggal Pengajuan</TableHead>
@@ -152,8 +167,12 @@ export default function PengurusPinjamanList() {
                               size="sm"
                               variant="ghost"
                               className="text-green-600 hover:text-green-700 hover:bg-green-100 gap-1"
-                              onClick={() => handleVerifikasi(pinjaman.id, "disetujui")}
-                              disabled={setujuiPinjaman.isPending}
+                              onClick={() => setPendingAction({
+                                id: pinjaman.id,
+                                nama: pinjaman.namaAnggota ?? "",
+                                jumlah: pinjaman.jumlahPinjaman,
+                                status: "disetujui",
+                              })}
                             >
                               <CheckCircle className="h-4 w-4" /> Setujui
                             </Button>
@@ -161,8 +180,12 @@ export default function PengurusPinjamanList() {
                               size="sm"
                               variant="ghost"
                               className="text-red-600 hover:text-red-700 hover:bg-red-100 gap-1"
-                              onClick={() => handleVerifikasi(pinjaman.id, "ditolak")}
-                              disabled={setujuiPinjaman.isPending}
+                              onClick={() => setPendingAction({
+                                id: pinjaman.id,
+                                nama: pinjaman.namaAnggota ?? "",
+                                jumlah: pinjaman.jumlahPinjaman,
+                                status: "ditolak",
+                              })}
                             >
                               <XCircle className="h-4 w-4" /> Tolak
                             </Button>
@@ -177,7 +200,7 @@ export default function PengurusPinjamanList() {
                   ))
                 )}
               </TableBody>
-            </Table>
+            </Table></div>
           </div>
           {!isLoading && filtered.length > 0 && (
             <div className="px-4 py-3 border-t text-xs text-muted-foreground">
@@ -186,6 +209,38 @@ export default function PengurusPinjamanList() {
           )}
         </CardContent>
       </Card>
+
+      <AlertDialog open={!!pendingAction} onOpenChange={(open) => !open && setPendingAction(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {pendingAction?.status === "disetujui" ? "Setujui Pinjaman?" : "Tolak Pinjaman?"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {pendingAction?.status === "disetujui"
+                ? `Anda akan menyetujui pengajuan pinjaman ${formatRupiah(pendingAction?.jumlah ?? 0)} milik ${pendingAction?.nama}. Tindakan ini tidak dapat dibatalkan.`
+                : `Anda akan menolak pengajuan pinjaman ${formatRupiah(pendingAction?.jumlah ?? 0)} milik ${pendingAction?.nama}. Anggota akan mendapatkan notifikasi penolakan.`
+              }
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Batal</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirm}
+              className={pendingAction?.status === "disetujui"
+                ? "bg-green-600 hover:bg-green-700 text-white"
+                : "bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+              }
+              disabled={setujuiPinjaman.isPending}
+            >
+              {setujuiPinjaman.isPending
+                ? "Memproses..."
+                : pendingAction?.status === "disetujui" ? "Ya, Setujui" : "Ya, Tolak"
+              }
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

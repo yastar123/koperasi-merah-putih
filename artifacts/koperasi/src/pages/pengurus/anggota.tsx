@@ -35,8 +35,8 @@ export default function PengurusAnggota() {
   const [openDialog, setOpenDialog] = useState(false);
 
   const { data: anggotaList, isLoading, refetch } = useListAnggota(
-    { koperasiId: user?.koperasiId },
-    { query: { enabled: !!user?.koperasiId } }
+    { koperasiId: user?.koperasiId ?? undefined },
+    { query: { queryKey: [], enabled: !!user?.koperasiId } }
   );
 
   const createAnggota = useCreateAnggota({
@@ -74,7 +74,7 @@ export default function PengurusAnggota() {
   ) ?? [];
 
   return (
-    <div className="space-y-6">
+    <div className="page-animate space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Daftar Anggota</h2>
@@ -101,7 +101,7 @@ export default function PengurusAnggota() {
       <Card>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
-            <Table>
+            <div className="table-responsive"><Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>No. Anggota</TableHead>
@@ -156,7 +156,7 @@ export default function PengurusAnggota() {
                   ))
                 )}
               </TableBody>
-            </Table>
+            </Table></div>
           </div>
           {!isLoading && filtered.length > 0 && (
             <div className="px-4 py-3 border-t text-xs text-muted-foreground">

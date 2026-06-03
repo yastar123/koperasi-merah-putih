@@ -12,16 +12,16 @@ export default function PengurusPinjamanDetail() {
 
   const { data: pinjaman, isLoading: loadingPinjaman } = useGetPinjaman(
     pinjamanId,
-    { query: { enabled: !!pinjamanId } }
+    { query: { queryKey: [], enabled: !!pinjamanId } }
   );
 
   const { data: angsuranList, isLoading: loadingAngsuran } = useListAngsuran(
     { pinjamanId },
-    { query: { enabled: !!pinjamanId } }
+    { query: { queryKey: [], enabled: !!pinjamanId } }
   );
 
   if (loadingPinjaman) return (
-    <div className="space-y-6">
+    <div className="page-animate space-y-6">
       <div className="flex items-center gap-4">
         <div className="skeleton h-9 w-9 rounded-md" />
         <div className="space-y-1.5">
@@ -102,7 +102,7 @@ export default function PengurusPinjamanDetail() {
             <CardDescription>Daftar tagihan bulanan untuk pinjaman ini.</CardDescription>
           </CardHeader>
           <CardContent className="p-0">
-             <Table>
+             <div className="table-responsive"><Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Periode</TableHead>
@@ -141,7 +141,7 @@ export default function PengurusPinjamanDetail() {
                   ))
                 )}
               </TableBody>
-            </Table>
+            </Table></div>
           </CardContent>
         </Card>
       </div>

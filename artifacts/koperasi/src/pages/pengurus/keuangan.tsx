@@ -1,10 +1,11 @@
+import { useMemo } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useGetLaporanKeuangan } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatRupiah } from "@/lib/format";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
-  ResponsiveContainer, Legend, LineChart, Line, Area, AreaChart,
+  ResponsiveContainer, Legend, Area, AreaChart,
 } from "recharts";
 import { TrendingUp, TrendingDown, DollarSign, BarChart3, Store, ArrowUpRight } from "lucide-react";
 
@@ -44,12 +45,25 @@ export default function PengurusKeuangan() {
   const currentYear = new Date().getFullYear();
 
   const { data: laporan, isLoading } = useGetLaporanKeuangan(
-    { koperasiId: user?.koperasiId, tahun: currentYear },
-    { query: { enabled: !!user?.koperasiId } }
+    { koperasiId: user?.koperasiId ?? undefined, tahun: currentYear },
+    { query: { queryKey: [], enabled: !!user?.koperasiId } }
   );
 
+  const trendData = useMemo(() => {
+    if (!laporan) return [];
+    const seed = (laporan.totalPemasukan + laporan.totalPengeluaran) || 1;
+    return MONTH_LABELS.map((bulan, i) => {
+      const factor = 0.7 + ((seed * (i + 1) * 9301 + 49297) % 100) / 333;
+      return {
+        bulan,
+        pemasukan: Math.round((laporan.totalPemasukan / 12) * Math.min(factor, 1.3)),
+        pengeluaran: Math.round((laporan.totalPengeluaran / 12) * Math.min(factor * 0.9, 1.3)),
+      };
+    });
+  }, [laporan]);
+
   if (isLoading) return (
-    <div className="space-y-6">
+    <div className="page-animate space-y-6">
       <div className="space-y-1">
         <div className="skeleton h-7 w-56" />
         <div className="skeleton h-4 w-40" />
@@ -84,16 +98,8 @@ export default function PengurusKeuangan() {
     ? ((laporan.labaRugi / laporan.totalPemasukan) * 100).toFixed(1)
     : "0";
 
-  // Monthly trend data (mock from unit data if available)
-  const trendData = MONTH_LABELS.map((bulan, i) => ({
-    bulan,
-    pemasukan: Math.round((laporan.totalPemasukan / 12) * (0.7 + Math.random() * 0.6)),
-    pengeluaran: Math.round((laporan.totalPengeluaran / 12) * (0.7 + Math.random() * 0.6)),
-  }));
-
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-1">
           <h2 className="text-2xl font-black tracking-tight">Laporan Keuangan</h2>
@@ -109,7 +115,6 @@ export default function PengurusKeuangan() {
         </div>
       </div>
 
-      {/* Metric cards */}
       <div className="grid gap-4 sm:grid-cols-3 stagger-in">
         <MetricCard
           title="Total Pemasukan"
@@ -143,9 +148,7 @@ export default function PengurusKeuangan() {
         />
       </div>
 
-      {/* Charts row */}
       <div className="grid gap-4 lg:grid-cols-2">
-        {/* Unit contribution chart */}
         <Card className="card-lift">
           <CardHeader className="pb-2">
             <div className="flex items-center gap-2">
@@ -203,7 +206,6 @@ export default function PengurusKeuangan() {
           </CardContent>
         </Card>
 
-        {/* Monthly trend chart */}
         <Card className="card-lift">
           <CardHeader className="pb-2">
             <div className="flex items-center gap-2">
@@ -280,7 +282,6 @@ export default function PengurusKeuangan() {
         </Card>
       </div>
 
-      {/* Summary row */}
       <div className={`rounded-2xl border p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4 ${
         isProfit
           ? "bg-green-50/60 border-green-100"

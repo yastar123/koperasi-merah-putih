@@ -1,0 +1,3 @@
+- [TanStack Query v5 queryKey fix](tanstack-query-v5.md) — Orval-generated hooks require `queryKey: []` in every `{ query: {...} }` options object.
+- [Null vs undefined in hook params](null-undefined-params.md) — `user?.koperasiId` is `number | null | undefined`; params expect `number | undefined`; fix with `?? undefined`.
+- [ProdukUpdate type](produk-update-type.md) — `ProdukUpdate` only has `nama?, hargaBeli?, hargaJual?, stok?`; no `unitUsahaId` or `satuan` — omit them on update calls.

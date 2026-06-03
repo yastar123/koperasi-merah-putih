@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useAuth } from "@/hooks/use-auth";
 import { useListPinjaman, useListAngsuran, useBayarAngsuran } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -9,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 
 export default function OperatorAngsuran() {
+  const { user } = useAuth();
   const { toast } = useToast();
   const [search, setSearch] = useState("");
   const [selectedPinjaman, setSelectedPinjaman] = useState<any | null>(null);
@@ -16,13 +18,13 @@ export default function OperatorAngsuran() {
   const [success, setSuccess] = useState(false);
 
   const { data: pinjamanList } = useListPinjaman(
-    { koperasiId: 1 },
-    { query: { enabled: search.length >= 2 } }
+    { koperasiId: user?.koperasiId ?? undefined },
+    { query: { queryKey: [], enabled: !!user?.koperasiId && search.length >= 2 } }
   );
 
   const { data: angsuranList } = useListAngsuran(
     { pinjamanId: selectedPinjaman?.id, status: "belum_lunas" },
-    { query: { enabled: !!selectedPinjaman?.id } }
+    { query: { queryKey: [], enabled: !!selectedPinjaman?.id } }
   );
 
   const bayarAngsuran = useBayarAngsuran({
@@ -61,7 +63,7 @@ export default function OperatorAngsuran() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="page-animate space-y-6">
       <div>
         <h2 className="text-2xl font-bold tracking-tight">Terima Angsuran</h2>
         <p className="text-muted-foreground">Catat pembayaran angsuran pinjaman anggota.</p>
@@ -149,7 +151,7 @@ export default function OperatorAngsuran() {
                 </div>
                 {success && (
                   <div className="flex items-center gap-2 rounded-lg bg-green-50 border border-green-200 p-3 text-green-800 text-sm">
-                    <CheckCircle className="h-4 w-4" />
+                    <CheckCircle className="h-4 w-4 success-pop" />
                     Angsuran berhasil dicatat!
                   </div>
                 )}

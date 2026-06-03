@@ -11,16 +11,16 @@ export default function AnggotaSimpanan() {
   
   const { data: saldo } = useGetSaldoAnggota(
     user?.id || 0,
-    { query: { enabled: !!user?.id } }
+    { query: { queryKey: [], enabled: !!user?.id } }
   );
 
   const { data: simpananList, isLoading } = useListSimpanan(
-    { anggotaId: user?.id },
-    { query: { enabled: !!user?.id } }
+    { anggotaId: user?.id ?? undefined },
+    { query: { queryKey: [], enabled: !!user?.id } }
   );
 
   return (
-    <div className="space-y-6">
+    <div className="page-animate space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Buku Simpanan</h2>
@@ -28,7 +28,7 @@ export default function AnggotaSimpanan() {
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-4 stagger-in">
         <Card className="bg-primary text-primary-foreground md:col-span-1">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium opacity-80 text-primary-foreground flex items-center gap-2">
@@ -71,7 +71,7 @@ export default function AnggotaSimpanan() {
           <CardTitle>Riwayat Transaksi</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
-          <Table>
+          <div className="table-responsive"><Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Tanggal</TableHead>
@@ -110,7 +110,7 @@ export default function AnggotaSimpanan() {
                 ))
               )}
             </TableBody>
-          </Table>
+          </Table></div>
         </CardContent>
       </Card>
     </div>

@@ -26,7 +26,7 @@ export default function SuperAdminKoperasiList() {
   ) ?? [];
 
   return (
-    <div className="space-y-6">
+    <div className="page-animate space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Daftar Koperasi</h2>
@@ -62,7 +62,7 @@ export default function SuperAdminKoperasiList() {
       <Card>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
-            <Table>
+            <div className="table-responsive"><Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Nama Koperasi</TableHead>
@@ -119,7 +119,7 @@ export default function SuperAdminKoperasiList() {
                   ))
                 )}
               </TableBody>
-            </Table>
+            </Table></div>
           </div>
           {!isLoading && filtered.length > 0 && (
             <div className="px-4 py-3 border-t text-xs text-muted-foreground">

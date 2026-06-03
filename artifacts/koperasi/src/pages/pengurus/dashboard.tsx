@@ -58,22 +58,22 @@ export default function PengurusDashboard() {
   const koperasiId = user?.koperasiId;
 
   const { data: stats, isLoading: isLoadingStats } = useGetDashboardStats(
-    { koperasiId: koperasiId! },
-    { query: { enabled: !!koperasiId } }
+    { koperasiId: koperasiId ?? undefined },
+    { query: { queryKey: [], enabled: !!koperasiId } }
   );
   const { data: aktivitas, isLoading: isLoadingAktivitas } = useGetAktivitasTerbaru(
-    { koperasiId: koperasiId! },
-    { query: { enabled: !!koperasiId } }
+    { koperasiId: koperasiId ?? undefined },
+    { query: { queryKey: [], enabled: !!koperasiId } }
   );
   const { data: jatuhTempo, isLoading: isLoadingJatuhTempo } = useGetPinjamanJatuhTempo(
-    { koperasiId: koperasiId! },
-    { query: { enabled: !!koperasiId } }
+    { koperasiId: koperasiId ?? undefined },
+    { query: { queryKey: [], enabled: !!koperasiId } }
   );
 
   const isLoading = isLoadingStats || isLoadingAktivitas || isLoadingJatuhTempo;
 
   return (
-    <div className="space-y-6">
+    <div className="page-animate space-y-6">
       {/* Header */}
       <div className="space-y-1">
         <h2 className="text-2xl font-black tracking-tight">
@@ -163,7 +163,7 @@ export default function PengurusDashboard() {
                 ))}
               </div>
             ) : jatuhTempo && jatuhTempo.length > 0 ? (
-              <Table>
+              <div className="table-responsive"><Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead className="text-xs">Anggota</TableHead>
@@ -175,12 +175,12 @@ export default function PengurusDashboard() {
                   {jatuhTempo.slice(0, 5).map((pinjaman) => (
                     <TableRow key={pinjaman.id}>
                       <TableCell className="font-medium text-sm py-2">
-                        <Link href={`/pengurus/pinjaman/${pinjaman.id}`} className="hover:underline text-primary">
+                        <Link href={`/pengurus/pinjaman/${pinjaman.pinjamanId}`} className="hover:underline text-primary">
                           {pinjaman.namaAnggota}
                         </Link>
                       </TableCell>
                       <TableCell className="text-right text-sm py-2 font-semibold">
-                        {formatRupiah(pinjaman.sisaPinjaman || 0)}
+                        {formatRupiah(pinjaman.jumlahAngsuran)}
                       </TableCell>
                       <TableCell className="text-right text-sm py-2 text-red-500 font-medium">
                         {formatDate(pinjaman.tanggalJatuhTempo)}
@@ -188,7 +188,7 @@ export default function PengurusDashboard() {
                     </TableRow>
                   ))}
                 </TableBody>
-              </Table>
+              </Table></div>
             ) : (
               <div className="flex flex-col items-center justify-center py-10 text-center">
                 <div className="h-12 w-12 rounded-2xl bg-green-50 flex items-center justify-center mb-3">

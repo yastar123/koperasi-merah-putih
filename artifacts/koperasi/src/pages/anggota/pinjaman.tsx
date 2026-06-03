@@ -32,8 +32,8 @@ export default function AnggotaPinjaman() {
   const [openDialog, setOpenDialog] = useState(false);
 
   const { data: pinjamanList, isLoading, refetch } = useListPinjaman(
-    { anggotaId: user?.id },
-    { query: { enabled: !!user?.id } }
+    { anggotaId: user?.id ?? undefined },
+    { query: { queryKey: [], enabled: !!user?.id } }
   );
 
   const createPinjaman = useCreatePinjaman({
@@ -71,7 +71,7 @@ export default function AnggotaPinjaman() {
     : 0;
 
   return (
-    <div className="space-y-6">
+    <div className="page-animate space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Pinjaman Saya</h2>
@@ -86,7 +86,7 @@ export default function AnggotaPinjaman() {
       <Card>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
-            <Table>
+            <div className="table-responsive"><Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Tanggal Pengajuan</TableHead>
@@ -139,7 +139,7 @@ export default function AnggotaPinjaman() {
                   ))
                 )}
               </TableBody>
-            </Table>
+            </Table></div>
           </div>
         </CardContent>
       </Card>

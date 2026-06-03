@@ -9,15 +9,15 @@ export default function PengawasAudit() {
   const currentYear = new Date().getFullYear();
   
   const { data: audit, isLoading } = useGetLaporanAudit(
-    { koperasiId: user?.koperasiId, tahun: currentYear },
-    { query: { enabled: !!user?.koperasiId } }
+    { koperasiId: user?.koperasiId ?? undefined, tahun: currentYear },
+    { query: { queryKey: [], enabled: !!user?.koperasiId } }
   );
 
   if (isLoading) return (
-    <div className="space-y-6">
+    <div className="page-animate space-y-6">
       <div className="skeleton h-7 w-64" />
       <div className="skeleton h-28 rounded-xl" />
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-6 md:grid-cols-2 stagger-in">
         <div className="skeleton h-64 rounded-xl" />
         <div className="skeleton h-64 rounded-xl" />
       </div>

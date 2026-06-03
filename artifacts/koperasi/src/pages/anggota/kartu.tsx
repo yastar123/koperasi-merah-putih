@@ -10,16 +10,16 @@ export default function AnggotaKartu() {
 
   const { data: anggota, isLoading } = useGetAnggota(
     user?.id || 0,
-    { query: { enabled: !!user?.id } }
+    { query: { queryKey: [], enabled: !!user?.id } }
   );
   const { data: saldo } = useGetSaldoAnggota(
     user?.id || 0,
-    { query: { enabled: !!user?.id } }
+    { query: { queryKey: [], enabled: !!user?.id } }
   );
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center gap-6 py-4">
+      <div className="page-animate flex flex-col items-center gap-6 py-4">
         <div className="text-center space-y-2">
           <div className="skeleton h-7 w-64 mx-auto" />
           <div className="skeleton h-4 w-80 mx-auto" />

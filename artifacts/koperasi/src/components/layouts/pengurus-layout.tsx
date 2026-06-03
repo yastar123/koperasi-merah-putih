@@ -1,5 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
+import { useGetKoperasi } from "@workspace/api-client-react";
 import {
   Sidebar, SidebarContent, SidebarFooter, SidebarGroup,
   SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu,
@@ -43,9 +44,16 @@ export function PengurusLayout({ children }: { children: React.ReactNode }) {
   const { logout, user } = useAuth();
   const [location] = useLocation();
 
+  const { data: koperasi } = useGetKoperasi(
+    user?.koperasiId ?? 0,
+    { query: { queryKey: [], enabled: !!user?.koperasiId } }
+  );
+
   const pageTitle = Object.entries(PAGE_TITLES).find(([path]) =>
     location.startsWith(path)
   )?.[1] ?? "Pengurus Koperasi";
+
+  const koperasiName = koperasi?.nama ?? (user?.koperasiId ? "Memuat..." : "Pengurus");
 
   return (
     <SidebarProvider>
@@ -59,7 +67,7 @@ export function PengurusLayout({ children }: { children: React.ReactNode }) {
               <div className="leading-tight min-w-0">
                 <div className="font-bold text-sm">Merah Putih</div>
                 <div className="text-[10px] text-muted-foreground font-medium truncate max-w-[130px]">
-                  {user?.koperasiId ? "Koperasi Sukamaju" : "Pengurus"}
+                  {koperasiName}
                 </div>
               </div>
             </div>

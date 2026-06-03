@@ -1,5 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
+import { useGetKoperasi } from "@workspace/api-client-react";
 import {
   Sidebar, SidebarContent, SidebarFooter, SidebarGroup,
   SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu,
@@ -41,9 +42,16 @@ export function OperatorLayout({ children }: { children: React.ReactNode }) {
   const { logout, user } = useAuth();
   const [location] = useLocation();
 
+  const { data: koperasi } = useGetKoperasi(
+    user?.koperasiId ?? 0,
+    { query: { queryKey: [], enabled: !!user?.koperasiId } }
+  );
+
   const pageTitle = Object.entries(PAGE_TITLES).find(([path]) =>
     location.startsWith(path)
   )?.[1] ?? "Operator Unit";
+
+  const koperasiName = koperasi?.nama ?? (user?.koperasiId ? "Memuat..." : "Operator Unit");
 
   return (
     <SidebarProvider>
@@ -54,9 +62,11 @@ export function OperatorLayout({ children }: { children: React.ReactNode }) {
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground font-black text-xs shadow-sm ring-1 ring-primary/20">
                 MP
               </div>
-              <div className="leading-tight">
+              <div className="leading-tight min-w-0">
                 <div className="font-bold text-sm">Merah Putih</div>
-                <div className="text-[10px] text-muted-foreground font-medium">Operator Unit</div>
+                <div className="text-[10px] text-muted-foreground font-medium truncate max-w-[130px]">
+                  {koperasiName}
+                </div>
               </div>
             </div>
           </SidebarHeader>

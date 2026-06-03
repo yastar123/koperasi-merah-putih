@@ -11,17 +11,17 @@ export default function PengawasDashboard() {
   const currentYear = new Date().getFullYear();
 
   const { data: stats, isLoading: isLoadingStats } = useGetDashboardStats(
-    { koperasiId: koperasiId! },
-    { query: { enabled: !!koperasiId } }
+    { koperasiId: koperasiId ?? undefined },
+    { query: { queryKey: [], enabled: !!koperasiId } }
   );
   const { data: laporan, isLoading: isLoadingLaporan } = useGetLaporanKeuangan(
-    { koperasiId: koperasiId!, tahun: currentYear },
-    { query: { enabled: !!koperasiId } }
+    { koperasiId: koperasiId ?? undefined, tahun: currentYear },
+    { query: { queryKey: [], enabled: !!koperasiId } }
   );
 
   if (isLoadingStats || isLoadingLaporan) {
     return (
-      <div className="space-y-6">
+      <div className="page-animate space-y-6">
         <div className="space-y-1">
           <div className="skeleton h-7 w-64" />
           <div className="skeleton h-4 w-40" />

@@ -13,26 +13,26 @@ export default function PengurusAnggotaDetail() {
 
   const { data: anggota, isLoading } = useGetAnggota(
     anggotaId,
-    { query: { enabled: !!anggotaId } }
+    { query: { queryKey: [], enabled: !!anggotaId } }
   );
 
   const { data: saldo } = useGetSaldoAnggota(
     anggotaId,
-    { query: { enabled: !!anggotaId } }
+    { query: { queryKey: [], enabled: !!anggotaId } }
   );
 
   const { data: simpananList } = useListSimpanan(
     { anggotaId },
-    { query: { enabled: !!anggotaId } }
+    { query: { queryKey: [], enabled: !!anggotaId } }
   );
 
   const { data: pinjamanList } = useListPinjaman(
     { anggotaId },
-    { query: { enabled: !!anggotaId } }
+    { query: { queryKey: [], enabled: !!anggotaId } }
   );
 
   if (isLoading) return (
-    <div className="space-y-6">
+    <div className="page-animate space-y-6">
       <div className="flex items-center gap-4">
         <div className="skeleton h-9 w-9 rounded-md" />
         <div className="space-y-1.5">
@@ -40,7 +40,7 @@ export default function PengurusAnggotaDetail() {
           <div className="skeleton h-4 w-32" />
         </div>
       </div>
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-3 stagger-in">
         <div className="skeleton h-80 rounded-xl" />
         <div className="skeleton md:col-span-2 h-80 rounded-xl" />
       </div>
@@ -141,7 +141,7 @@ export default function PengurusAnggotaDetail() {
               </CardHeader>
               <CardContent className="pt-6 p-0">
                 <TabsContent value="simpanan" className="m-0">
-                  <Table>
+                  <div className="table-responsive"><Table>
                     <TableHeader>
                       <TableRow>
                         <TableHead>Tanggal</TableHead>
@@ -168,10 +168,10 @@ export default function PengurusAnggotaDetail() {
                         ))
                       )}
                     </TableBody>
-                  </Table>
+                  </Table></div>
                 </TabsContent>
                 <TabsContent value="pinjaman" className="m-0">
-                   <Table>
+                   <div className="table-responsive"><Table>
                     <TableHeader>
                       <TableRow>
                         <TableHead>Tanggal</TableHead>
@@ -200,7 +200,7 @@ export default function PengurusAnggotaDetail() {
                         ))
                       )}
                     </TableBody>
-                  </Table>
+                  </Table></div>
                 </TabsContent>
               </CardContent>
             </Tabs>

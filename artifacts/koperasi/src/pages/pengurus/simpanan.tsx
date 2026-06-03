@@ -33,13 +33,13 @@ export default function PengurusSimpanan() {
   const [openDialog, setOpenDialog] = useState(false);
 
   const { data: simpananList, isLoading, refetch } = useListSimpanan(
-    { koperasiId: user?.koperasiId },
-    { query: { enabled: !!user?.koperasiId } }
+    { koperasiId: user?.koperasiId ?? undefined },
+    { query: { queryKey: [], enabled: !!user?.koperasiId } }
   );
 
   const { data: anggotaList } = useListAnggota(
-    { koperasiId: user?.koperasiId },
-    { query: { enabled: !!user?.koperasiId && openDialog } }
+    { koperasiId: user?.koperasiId ?? undefined },
+    { query: { queryKey: [], enabled: !!user?.koperasiId && openDialog } }
   );
 
   const createSimpanan = useCreateSimpanan({
@@ -80,7 +80,7 @@ export default function PengurusSimpanan() {
   ) ?? [];
 
   return (
-    <div className="space-y-6">
+    <div className="page-animate space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Riwayat Simpanan</h2>
@@ -107,7 +107,7 @@ export default function PengurusSimpanan() {
       <Card>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
-            <Table>
+            <div className="table-responsive"><Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Tanggal</TableHead>
@@ -159,7 +159,7 @@ export default function PengurusSimpanan() {
                   ))
                 )}
               </TableBody>
-            </Table>
+            </Table></div>
           </div>
         </CardContent>
       </Card>

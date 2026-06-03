@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useGetKoperasi, useVerifikasiKoperasi, useListAnggota, useListUnitUsaha } from "@workspace/api-client-react";
 import { useParams, Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -6,45 +7,63 @@ import { Button } from "@/components/ui/button";
 import { getStatusBadgeVariant, formatDate, formatRupiah } from "@/lib/format";
 import { useToast } from "@/hooks/use-toast";
 import { CheckCircle, XCircle, ArrowLeft, Building, MapPin, Users, Store } from "lucide-react";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
+type VerifikasiPending = { status: "aktif" | "ditolak" } | null;
 
 export default function SuperAdminKoperasiDetail() {
   const { id } = useParams();
   const koperasiId = Number(id);
   const { toast } = useToast();
+  const [pendingVerifikasi, setPendingVerifikasi] = useState<VerifikasiPending>(null);
 
   const { data: koperasi, isLoading, refetch } = useGetKoperasi(
     koperasiId,
-    { query: { enabled: !!koperasiId } }
+    { query: { queryKey: [], enabled: !!koperasiId } }
   );
 
   const { data: anggotaList } = useListAnggota(
     { koperasiId },
-    { query: { enabled: !!koperasiId } }
+    { query: { queryKey: [], enabled: !!koperasiId } }
   );
 
   const { data: unitList } = useListUnitUsaha(
     { koperasiId },
-    { query: { enabled: !!koperasiId } }
+    { query: { queryKey: [], enabled: !!koperasiId } }
   );
 
   const verifikasiMutation = useVerifikasiKoperasi({
     mutation: {
       onSuccess: () => {
         toast({ title: "Status koperasi berhasil diperbarui" });
+        setPendingVerifikasi(null);
         refetch();
+      },
+      onError: () => {
+        toast({ title: "Gagal memperbarui status", variant: "destructive" });
+        setPendingVerifikasi(null);
       }
     }
   });
 
-  const handleVerifikasi = (status: "aktif" | "ditolak") => {
+  const handleConfirm = () => {
+    if (!pendingVerifikasi) return;
     verifikasiMutation.mutate({
       id: koperasiId,
-      data: { status, catatan: status === "aktif" ? "Verifikasi disetujui" : "Verifikasi ditolak" }
+      data: {
+        status: pendingVerifikasi.status,
+        catatan: pendingVerifikasi.status === "aktif"
+          ? "Verifikasi disetujui"
+          : "Verifikasi ditolak",
+      }
     });
   };
 
   if (isLoading) return (
-    <div className="space-y-6">
+    <div className="page-animate space-y-6">
       <div className="skeleton h-5 w-32" />
       <div className="skeleton h-8 w-72" />
       <div className="grid gap-4 md:grid-cols-2">
@@ -53,6 +72,7 @@ export default function SuperAdminKoperasiDetail() {
       </div>
     </div>
   );
+
   if (!koperasi) return (
     <div className="flex flex-col items-center justify-center py-12 text-center">
       <p className="text-muted-foreground">Koperasi tidak ditemukan.</p>
@@ -107,13 +127,21 @@ export default function SuperAdminKoperasiDetail() {
                 <p className="font-medium">{koperasi.email || "-"}</p>
               </div>
             </div>
-            
+
             {koperasi.status === "pending" && (
               <div className="flex gap-2 pt-6 border-t mt-6">
-                <Button className="flex-1 bg-green-600 hover:bg-green-700" onClick={() => handleVerifikasi("aktif")} disabled={verifikasiMutation.isPending}>
+                <Button
+                  className="flex-1 bg-green-600 hover:bg-green-700"
+                  onClick={() => setPendingVerifikasi({ status: "aktif" })}
+                  disabled={verifikasiMutation.isPending}
+                >
                   <CheckCircle className="mr-2 h-4 w-4" /> Setujui Verifikasi
                 </Button>
-                <Button className="flex-1 bg-red-600 hover:bg-red-700" onClick={() => handleVerifikasi("ditolak")} disabled={verifikasiMutation.isPending}>
+                <Button
+                  className="flex-1 bg-red-600 hover:bg-red-700"
+                  onClick={() => setPendingVerifikasi({ status: "ditolak" })}
+                  disabled={verifikasiMutation.isPending}
+                >
                   <XCircle className="mr-2 h-4 w-4" /> Tolak Pendaftaran
                 </Button>
               </div>
@@ -163,6 +191,38 @@ export default function SuperAdminKoperasiDetail() {
           </Card>
         </div>
       </div>
+
+      <AlertDialog open={!!pendingVerifikasi} onOpenChange={(open) => !open && setPendingVerifikasi(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {pendingVerifikasi?.status === "aktif" ? "Setujui Verifikasi?" : "Tolak Pendaftaran?"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {pendingVerifikasi?.status === "aktif"
+                ? `Anda akan menyetujui dan mengaktifkan koperasi "${koperasi.nama}". Koperasi akan dapat beroperasi sepenuhnya dalam sistem.`
+                : `Anda akan menolak pendaftaran koperasi "${koperasi.nama}". Pengurus koperasi akan mendapatkan notifikasi penolakan.`
+              }
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Batal</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirm}
+              className={pendingVerifikasi?.status === "aktif"
+                ? "bg-green-600 hover:bg-green-700 text-white"
+                : "bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+              }
+              disabled={verifikasiMutation.isPending}
+            >
+              {verifikasiMutation.isPending
+                ? "Memproses..."
+                : pendingVerifikasi?.status === "aktif" ? "Ya, Setujui" : "Ya, Tolak"
+              }
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

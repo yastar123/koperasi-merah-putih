@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useAuth } from "@/hooks/use-auth";
 import { useListAnggota, useCreateSimpanan } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -9,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 
 export default function OperatorSimpanan() {
+  const { user } = useAuth();
   const { toast } = useToast();
   const [searchAnggota, setSearchAnggota] = useState("");
   const [selectedAnggota, setSelectedAnggota] = useState<any | null>(null);
@@ -17,8 +19,8 @@ export default function OperatorSimpanan() {
   const [success, setSuccess] = useState(false);
 
   const { data: anggotaList } = useListAnggota(
-    { koperasiId: 1 },
-    { query: { enabled: searchAnggota.length >= 2 } }
+    { koperasiId: user?.koperasiId ?? undefined },
+    { query: { queryKey: [], enabled: !!user?.koperasiId && searchAnggota.length >= 2 } }
   );
 
   const createSimpanan = useCreateSimpanan({
@@ -56,7 +58,7 @@ export default function OperatorSimpanan() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="page-animate space-y-6">
       <div>
         <h2 className="text-2xl font-bold tracking-tight">Terima Simpanan</h2>
         <p className="text-muted-foreground">Catat setoran simpanan tunai dari anggota.</p>
@@ -89,6 +91,9 @@ export default function OperatorSimpanan() {
                   </button>
                 ))}
               </div>
+            )}
+            {searchAnggota.length >= 2 && filteredAnggota.length === 0 && !selectedAnggota && (
+              <p className="text-sm text-muted-foreground text-center py-3">Anggota tidak ditemukan.</p>
             )}
             {selectedAnggota && (
               <div className="rounded-lg bg-primary/5 border border-primary/20 p-3">
@@ -137,7 +142,7 @@ export default function OperatorSimpanan() {
             )}
             {success && (
               <div className="flex items-center gap-2 rounded-lg bg-green-50 border border-green-200 p-3 text-green-800 text-sm">
-                <CheckCircle className="h-4 w-4" />
+                <CheckCircle className="h-4 w-4 success-pop" />
                 Simpanan berhasil dicatat!
               </div>
             )}

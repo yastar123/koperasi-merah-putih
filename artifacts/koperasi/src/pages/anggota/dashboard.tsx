@@ -10,17 +10,17 @@ export default function AnggotaDashboard() {
   const { user } = useAuth();
 
   const { data: saldo, isLoading: isLoadingSaldo } = useGetSaldoAnggota(
-    user?.id!,
-    { query: { enabled: !!user?.id } }
+    user?.id ?? 0,
+    { query: { queryKey: [], enabled: !!user?.id } }
   );
   const { data: pinjaman, isLoading: isLoadingPinjaman } = useListPinjaman(
-    { anggotaId: user?.id },
-    { query: { enabled: !!user?.id } }
+    { anggotaId: user?.id ?? undefined },
+    { query: { queryKey: [], enabled: !!user?.id } }
   );
 
   if (isLoadingSaldo || isLoadingPinjaman) {
     return (
-      <div className="space-y-6">
+      <div className="page-animate space-y-6">
         <div className="space-y-2">
           <div className="skeleton h-7 w-56" />
           <div className="skeleton h-4 w-48" />

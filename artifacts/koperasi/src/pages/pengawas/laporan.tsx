@@ -24,12 +24,12 @@ export default function PengawasLaporan() {
   const currentYear = new Date().getFullYear();
 
   const { data: laporan, isLoading } = useGetLaporanKeuangan(
-    { koperasiId: user?.koperasiId, tahun: currentYear },
-    { query: { enabled: !!user?.koperasiId } }
+    { koperasiId: user?.koperasiId ?? undefined, tahun: currentYear },
+    { query: { queryKey: [], enabled: !!user?.koperasiId } }
   );
 
   if (isLoading) return (
-    <div className="space-y-6">
+    <div className="page-animate space-y-6">
       <div className="space-y-1">
         <div className="skeleton h-7 w-64" />
         <div className="skeleton h-4 w-48" />

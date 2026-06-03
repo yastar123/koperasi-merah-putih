@@ -1,14 +1,16 @@
-import { useState } from "react";
-import { useListProduk, useUpdateProduk, useCreateProduk } from "@workspace/api-client-react";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/hooks/use-auth";
+import { useListProduk, useUpdateProduk, useCreateProduk, useListUnitUsaha } from "@workspace/api-client-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatRupiah } from "@/lib/format";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Plus, Edit2, Package, AlertTriangle } from "lucide-react";
+import { Search, Plus, Edit2, Package, AlertTriangle, Store } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -26,13 +28,30 @@ const produkSchema = z.object({
 type ProdukForm = z.infer<typeof produkSchema>;
 
 export default function OperatorStok() {
-  const unitUsahaId = 1;
+  const { user } = useAuth();
   const { toast } = useToast();
   const [search, setSearch] = useState("");
   const [editProduk, setEditProduk] = useState<any | null>(null);
   const [openCreate, setOpenCreate] = useState(false);
+  const [selectedUnitId, setSelectedUnitId] = useState<number | null>(null);
 
-  const { data: produkList, isLoading, refetch } = useListProduk({ unitUsahaId });
+  const { data: unitList, isLoading: isLoadingUnits } = useListUnitUsaha(
+    { koperasiId: user?.koperasiId ?? undefined },
+    { query: { queryKey: [], enabled: !!user?.koperasiId } }
+  );
+
+  useEffect(() => {
+    if (unitList && unitList.length > 0 && selectedUnitId === null) {
+      setSelectedUnitId(unitList[0].id);
+    }
+  }, [unitList, selectedUnitId]);
+
+  const unitUsahaId = selectedUnitId ?? 0;
+
+  const { data: produkList, isLoading, refetch } = useListProduk(
+    { unitUsahaId },
+    { query: { queryKey: [], enabled: unitUsahaId > 0 } }
+  );
 
   const updateProduk = useUpdateProduk({
     mutation: {
@@ -83,7 +102,7 @@ export default function OperatorStok() {
   };
 
   const onEdit = (data: ProdukForm) => {
-    updateProduk.mutate({ id: editProduk.id, data: { ...data, unitUsahaId } });
+    updateProduk.mutate({ id: editProduk.id, data: { nama: data.nama, hargaBeli: data.hargaBeli, hargaJual: data.hargaJual, stok: data.stok } });
   };
 
   const onCreate = (data: ProdukForm) => {
@@ -97,14 +116,50 @@ export default function OperatorStok() {
 
   const stokMinim = filtered.filter(p => p.stok <= 5).length;
 
+  if (isLoadingUnits) {
+    return (
+      <div className="page-animate flex flex-col items-center justify-center h-64 gap-3">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <p className="text-sm text-muted-foreground">Memuat data unit usaha...</p>
+      </div>
+    );
+  }
+
+  if (!unitList || unitList.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 text-center gap-3">
+        <div className="h-14 w-14 rounded-2xl bg-muted/60 flex items-center justify-center">
+          <Store className="h-7 w-7 text-muted-foreground/40" />
+        </div>
+        <div>
+          <p className="font-semibold">Tidak ada unit usaha</p>
+          <p className="text-sm text-muted-foreground mt-1">Hubungi pengurus untuk menambahkan unit usaha terlebih dahulu.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-6">
+    <div className="page-animate space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Manajemen Stok</h2>
           <p className="text-muted-foreground">Perbarui jumlah dan harga produk unit usaha.</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          {unitList.length > 1 && (
+            <Select value={String(selectedUnitId)} onValueChange={(v) => setSelectedUnitId(Number(v))}>
+              <SelectTrigger className="w-[200px]">
+                <Store className="mr-2 h-4 w-4" />
+                <SelectValue placeholder="Pilih unit" />
+              </SelectTrigger>
+              <SelectContent>
+                {unitList.map(u => (
+                  <SelectItem key={u.id} value={String(u.id)}>{u.nama}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
@@ -132,7 +187,7 @@ export default function OperatorStok() {
       <Card>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
-            <Table>
+            <div className="table-responsive"><Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Nama Produk</TableHead>
@@ -187,11 +242,12 @@ export default function OperatorStok() {
                   ))
                 )}
               </TableBody>
-            </Table>
+            </Table></div>
           </div>
           {!isLoading && filtered.length > 0 && (
             <div className="px-4 py-3 border-t text-xs text-muted-foreground">
               {filtered.length} produk ditemukan
+              {unitList.length === 1 && <span className="ml-1 text-muted-foreground/60">· {unitList[0].nama}</span>}
             </div>
           )}
         </CardContent>

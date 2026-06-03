@@ -10,12 +10,12 @@ export default function PengurusSHU() {
   const currentYear = new Date().getFullYear() - 1;
 
   const { data: shu, isLoading } = useGetLaporanShu(
-    { koperasiId: user?.koperasiId, tahun: currentYear },
-    { query: { enabled: !!user?.koperasiId } }
+    { koperasiId: user?.koperasiId ?? undefined, tahun: currentYear },
+    { query: { queryKey: [], enabled: !!user?.koperasiId } }
   );
 
   if (isLoading) return (
-    <div className="space-y-6">
+    <div className="page-animate space-y-6">
       <div className="space-y-1">
         <div className="skeleton h-7 w-64" />
         <div className="skeleton h-4 w-48" />
@@ -157,7 +157,7 @@ export default function PengurusSHU() {
             </CardHeader>
             <CardContent className="p-0">
               <div className="overflow-x-auto">
-                <Table>
+                <div className="table-responsive"><Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead className="pl-4">Anggota</TableHead>
@@ -185,7 +185,7 @@ export default function PengurusSHU() {
                       </TableRow>
                     ))}
                   </TableBody>
-                </Table>
+                </Table></div>
               </div>
               <div className="px-4 py-3 border-t bg-primary/5 flex items-center justify-between">
                 <span className="text-sm font-semibold text-primary">Total SHU</span>
