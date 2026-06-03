@@ -23,7 +23,9 @@ export default function AnggotaBelanja() {
 
       <div className="grid gap-6 md:grid-cols-2">
         {isLoading ? (
-          <div className="col-span-full p-8 text-center text-muted-foreground">Memuat unit usaha...</div>
+          Array.from({ length: 2 }).map((_, i) => (
+            <div key={i} className="skeleton h-72 rounded-xl" />
+          ))
         ) : !units || units.length === 0 ? (
            <Card className="col-span-full flex flex-col items-center justify-center p-12 text-center border-dashed">
             <Store className="h-12 w-12 text-muted-foreground mb-4 opacity-50" />

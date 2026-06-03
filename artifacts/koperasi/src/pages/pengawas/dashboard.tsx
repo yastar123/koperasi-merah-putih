@@ -20,7 +20,20 @@ export default function PengawasDashboard() {
   );
 
   if (isLoadingStats || isLoadingLaporan) {
-    return <div className="flex h-full items-center justify-center p-8">Memuat data dashboard...</div>;
+    return (
+      <div className="space-y-6">
+        <div className="skeleton h-7 w-56" />
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="skeleton h-28 rounded-xl" />
+          ))}
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="skeleton h-80 rounded-xl" />
+          <div className="skeleton h-80 rounded-xl" />
+        </div>
+      </div>
+    );
   }
 
   if (!stats || !laporan) return null;

@@ -12,8 +12,20 @@ export default function PengawasLaporan() {
     { query: { enabled: !!user?.koperasiId } }
   );
 
-  if (isLoading) return <div className="p-8">Memuat laporan keuangan...</div>;
-  if (!laporan) return <div className="p-8">Laporan tidak tersedia.</div>;
+  if (isLoading) return (
+    <div className="space-y-6">
+      <div className="skeleton h-7 w-64" />
+      <div className="grid gap-6 md:grid-cols-2">
+        <div className="skeleton h-64 rounded-xl" />
+        <div className="skeleton h-64 rounded-xl" />
+      </div>
+    </div>
+  );
+  if (!laporan) return (
+    <div className="flex flex-col items-center justify-center py-12 text-center">
+      <p className="text-muted-foreground">Laporan keuangan belum tersedia.</p>
+    </div>
+  );
 
   return (
     <div className="space-y-6">

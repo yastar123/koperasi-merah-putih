@@ -7,9 +7,13 @@ import { Download } from "lucide-react";
 export default function SuperAdminLaporan() {
   const { data: dashboardData, isLoading } = useGetDashboardNasional();
 
-  if (isLoading) {
-    return <div className="flex h-full items-center justify-center p-8">Memuat laporan...</div>;
-  }
+  if (isLoading) return (
+    <div className="space-y-6">
+      <div className="skeleton h-7 w-64" />
+      <div className="skeleton h-56 rounded-xl" />
+      <div className="skeleton h-64 rounded-xl" />
+    </div>
+  );
 
   if (!dashboardData) return null;
 

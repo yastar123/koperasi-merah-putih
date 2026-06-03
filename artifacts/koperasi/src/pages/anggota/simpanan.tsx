@@ -82,9 +82,13 @@ export default function AnggotaSimpanan() {
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                <TableRow>
-                  <TableCell colSpan={4} className="h-24 text-center">Memuat riwayat...</TableCell>
-                </TableRow>
+                Array.from({ length: 5 }).map((_, i) => (
+                  <TableRow key={i}>
+                    {Array.from({ length: 4 }).map((_, j) => (
+                      <TableCell key={j}><div className="skeleton h-4 w-full" /></TableCell>
+                    ))}
+                  </TableRow>
+                ))
               ) : !simpananList || simpananList.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={4} className="h-24 text-center">Belum ada riwayat simpanan.</TableCell>

@@ -1,9 +1,9 @@
-import { Switch, Route, Router as WouterRouter } from "wouter";
+import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
-import { AuthProvider } from "@/hooks/use-auth";
+import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { ProtectedLayout } from "@/components/layouts/protected-layout";
 import { SuperAdminLayout } from "@/components/layouts/super-admin-layout";
 import { PengurusLayout } from "@/components/layouts/pengurus-layout";
@@ -50,15 +50,16 @@ import OperatorAngsuran from "@/pages/operator/angsuran";
 
 const queryClient = new QueryClient();
 
-function Placeholder() {
-  return (
-    <div className="flex h-full w-full items-center justify-center p-8">
-      <div className="text-center">
-        <h2 className="text-2xl font-bold">Halaman Dalam Pembangunan</h2>
-        <p className="text-muted-foreground mt-2">Tampilan sedang disusun</p>
-      </div>
-    </div>
-  );
+function RoleRedirect() {
+  const { user, isLoading } = useAuth();
+  if (isLoading) return null;
+  if (!user) return <Redirect to="/login" />;
+  if (user.role === "super_admin") return <Redirect to="/super-admin/dashboard" />;
+  if (user.role === "pengurus") return <Redirect to="/pengurus/dashboard" />;
+  if (user.role === "pengawas") return <Redirect to="/pengawas/dashboard" />;
+  if (user.role === "anggota") return <Redirect to="/anggota/dashboard" />;
+  if (user.role === "operator_unit") return <Redirect to="/operator/dashboard" />;
+  return <Redirect to="/login" />;
 }
 
 function Router() {
@@ -147,7 +148,7 @@ function Router() {
 
       <Route path="/">
         <ProtectedLayout>
-          {() => <div className="p-8">Memuat...</div>}
+          <RoleRedirect />
         </ProtectedLayout>
       </Route>
 

@@ -20,8 +20,27 @@ export default function PengurusPinjamanDetail() {
     { query: { enabled: !!pinjamanId } }
   );
 
-  if (loadingPinjaman) return <div className="p-8">Memuat detail pinjaman...</div>;
-  if (!pinjaman) return <div className="p-8">Pinjaman tidak ditemukan.</div>;
+  if (loadingPinjaman) return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-4">
+        <div className="skeleton h-9 w-9 rounded-md" />
+        <div className="space-y-1.5">
+          <div className="skeleton h-7 w-48" />
+          <div className="skeleton h-4 w-32" />
+        </div>
+      </div>
+      <div className="grid gap-6 md:grid-cols-3">
+        <div className="skeleton h-64 rounded-xl" />
+        <div className="skeleton md:col-span-2 h-64 rounded-xl" />
+      </div>
+    </div>
+  );
+  if (!pinjaman) return (
+    <div className="flex flex-col items-center justify-center py-12 text-center">
+      <p className="text-muted-foreground">Pinjaman tidak ditemukan.</p>
+      <Link href="/pengurus/pinjaman" className="text-primary hover:underline mt-2 text-sm">← Kembali ke daftar</Link>
+    </div>
+  );
 
   return (
     <div className="space-y-6">

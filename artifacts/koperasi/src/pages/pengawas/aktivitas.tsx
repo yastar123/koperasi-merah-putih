@@ -36,12 +36,18 @@ export default function PengawasAktivitas() {
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                <TableRow>
-                  <TableCell colSpan={4} className="h-24 text-center">Memuat log aktivitas...</TableCell>
-                </TableRow>
+                Array.from({ length: 6 }).map((_, i) => (
+                  <TableRow key={i}>
+                    {Array.from({ length: 4 }).map((_, j) => (
+                      <TableCell key={j}><div className="skeleton h-4 w-full" /></TableCell>
+                    ))}
+                  </TableRow>
+                ))
               ) : !aktivitasList || aktivitasList.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={4} className="h-24 text-center">Tidak ada aktivitas.</TableCell>
+                  <TableCell colSpan={4} className="py-12 text-center text-muted-foreground">
+                    Belum ada log aktivitas.
+                  </TableCell>
                 </TableRow>
               ) : (
                 aktivitasList.map((log) => (

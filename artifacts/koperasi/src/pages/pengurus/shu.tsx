@@ -14,7 +14,13 @@ export default function PengurusSHU() {
     { query: { enabled: !!user?.koperasiId } }
   );
 
-  if (isLoading) return <div className="p-8">Memuat kalkulasi SHU...</div>;
+  if (isLoading) return (
+    <div className="space-y-6">
+      <div className="skeleton h-7 w-64" />
+      <div className="skeleton h-28 rounded-xl" />
+      <div className="skeleton h-64 rounded-xl" />
+    </div>
+  );
   
   return (
     <div className="space-y-6">

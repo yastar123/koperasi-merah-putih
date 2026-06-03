@@ -20,7 +20,16 @@ export default function AnggotaDashboard() {
   );
 
   if (isLoadingSaldo || isLoadingPinjaman) {
-    return <div className="flex h-full items-center justify-center p-8">Memuat profil...</div>;
+    return (
+      <div className="space-y-6">
+        <div className="skeleton h-7 w-48" />
+        <div className="skeleton h-4 w-64" />
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="skeleton h-52 rounded-xl" />
+          <div className="skeleton h-52 rounded-xl" />
+        </div>
+      </div>
+    );
   }
 
   const pinjamanAktif = pinjaman?.find(p => p.status === "disetujui" || p.status === "macet");

@@ -43,8 +43,22 @@ export default function SuperAdminKoperasiDetail() {
     });
   };
 
-  if (isLoading) return <div className="p-8">Memuat detail koperasi...</div>;
-  if (!koperasi) return <div className="p-8">Koperasi tidak ditemukan.</div>;
+  if (isLoading) return (
+    <div className="space-y-6">
+      <div className="skeleton h-5 w-32" />
+      <div className="skeleton h-8 w-72" />
+      <div className="grid gap-4 md:grid-cols-2">
+        <div className="skeleton h-64 rounded-xl" />
+        <div className="skeleton h-64 rounded-xl" />
+      </div>
+    </div>
+  );
+  if (!koperasi) return (
+    <div className="flex flex-col items-center justify-center py-12 text-center">
+      <p className="text-muted-foreground">Koperasi tidak ditemukan.</p>
+      <Link href="/super-admin/koperasi" className="text-primary hover:underline mt-2 text-sm">← Kembali ke daftar</Link>
+    </div>
+  );
 
   return (
     <div className="space-y-6">

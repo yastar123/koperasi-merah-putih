@@ -13,8 +13,20 @@ export default function PengurusKeuangan() {
     { query: { enabled: !!user?.koperasiId } }
   );
 
-  if (isLoading) return <div className="p-8">Memuat laporan keuangan...</div>;
-  if (!laporan) return <div className="p-8">Laporan tidak tersedia.</div>;
+  if (isLoading) return (
+    <div className="space-y-6">
+      <div className="skeleton h-7 w-56" />
+      <div className="grid gap-4 md:grid-cols-3">
+        {Array.from({ length: 3 }).map((_, i) => <div key={i} className="skeleton h-28 rounded-xl" />)}
+      </div>
+      <div className="skeleton h-[400px] rounded-xl" />
+    </div>
+  );
+  if (!laporan) return (
+    <div className="flex flex-col items-center justify-center py-12 text-center">
+      <p className="text-muted-foreground">Laporan keuangan belum tersedia.</p>
+    </div>
+  );
 
   const unitData = laporan.rincianUnit || [];
 

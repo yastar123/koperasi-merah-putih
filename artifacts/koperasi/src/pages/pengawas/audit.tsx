@@ -13,7 +13,16 @@ export default function PengawasAudit() {
     { query: { enabled: !!user?.koperasiId } }
   );
 
-  if (isLoading) return <div className="p-8">Memuat laporan audit...</div>;
+  if (isLoading) return (
+    <div className="space-y-6">
+      <div className="skeleton h-7 w-64" />
+      <div className="skeleton h-28 rounded-xl" />
+      <div className="grid gap-6 md:grid-cols-2">
+        <div className="skeleton h-64 rounded-xl" />
+        <div className="skeleton h-64 rounded-xl" />
+      </div>
+    </div>
+  );
   
   if (!audit) {
     return (

@@ -18,7 +18,14 @@ export default function AnggotaKartu() {
   );
 
   if (isLoading) {
-    return <div className="flex h-full items-center justify-center p-8">Memuat kartu...</div>;
+    return (
+      <div className="flex flex-col items-center space-y-6">
+        <div className="skeleton h-7 w-56" />
+        <div className="skeleton h-4 w-80" />
+        <div className="skeleton w-full max-w-[400px] h-56 rounded-xl" />
+        <div className="skeleton w-full max-w-[400px] h-16 rounded-xl" />
+      </div>
+    );
   }
 
   if (!anggota) return null;

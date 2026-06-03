@@ -38,7 +38,9 @@ export default function PengurusUnitUsaha() {
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {isLoading ? (
-          <div className="col-span-full text-center py-8">Memuat unit usaha...</div>
+          Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="skeleton h-64 rounded-xl" />
+          ))
         ) : !units || units.length === 0 ? (
           <div className="col-span-full text-center py-8 text-muted-foreground bg-muted/20 rounded-lg border border-dashed">
             Belum ada unit usaha. Klik "Tambah Unit Usaha" untuk memulai.

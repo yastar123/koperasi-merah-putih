@@ -1,120 +1,106 @@
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
-import { 
-  Sidebar, 
-  SidebarContent, 
-  SidebarFooter, 
-  SidebarGroup, 
-  SidebarGroupContent, 
-  SidebarHeader, 
-  SidebarMenu, 
-  SidebarMenuButton, 
-  SidebarMenuItem, 
-  SidebarProvider, 
-  SidebarTrigger 
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarTrigger
 } from "@/components/ui/sidebar";
 import { LayoutDashboard, Users, Wallet, CreditCard, Store, PieChart, Calculator, LogOut } from "lucide-react";
+
+const NAV_ITEMS = [
+  { href: "/pengurus/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/pengurus/anggota", label: "Anggota", icon: Users },
+  { href: "/pengurus/simpanan", label: "Simpanan", icon: Wallet },
+  { href: "/pengurus/pinjaman", label: "Pinjaman", icon: CreditCard },
+  { href: "/pengurus/unit-usaha", label: "Unit Usaha", icon: Store },
+  { href: "/pengurus/keuangan", label: "Keuangan", icon: PieChart },
+  { href: "/pengurus/shu", label: "Sisa Hasil Usaha", icon: Calculator },
+];
+
+const PAGE_TITLES: Record<string, string> = {
+  "/pengurus/dashboard": "Dashboard Koperasi",
+  "/pengurus/anggota": "Data Anggota",
+  "/pengurus/simpanan": "Riwayat Simpanan",
+  "/pengurus/pinjaman": "Daftar Pinjaman",
+  "/pengurus/unit-usaha": "Unit Usaha",
+  "/pengurus/keuangan": "Laporan Keuangan",
+  "/pengurus/shu": "Sisa Hasil Usaha",
+};
 
 export function PengurusLayout({ children }: { children: React.ReactNode }) {
   const { logout, user } = useAuth();
   const [location] = useLocation();
 
+  const pageTitle = Object.entries(PAGE_TITLES).find(([path]) =>
+    location.startsWith(path)
+  )?.[1] ?? "Pengurus Koperasi";
+
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
         <Sidebar variant="inset">
-          <SidebarHeader className="border-b px-4 py-3">
-            <div className="flex items-center gap-2 font-bold text-primary">
-              <div className="flex h-6 w-6 items-center justify-center rounded bg-primary text-primary-foreground">
-                M
+          <SidebarHeader className="border-b px-4 py-4">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold text-xs shadow-sm">
+                MP
               </div>
-              Merah Putih
+              <div className="leading-tight">
+                <div className="font-bold text-sm text-foreground">Merah Putih</div>
+                <div className="text-xs text-muted-foreground truncate max-w-[120px]">{user?.koperasiId ? "Koperasi Sukamaju" : "Pengurus"}</div>
+              </div>
             </div>
           </SidebarHeader>
-          <SidebarContent>
+          <SidebarContent className="py-2">
             <SidebarGroup>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={location === "/pengurus/dashboard"}>
-                      <Link href="/pengurus/dashboard">
-                        <LayoutDashboard />
-                        <span>Dashboard</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={location.startsWith("/pengurus/anggota")}>
-                      <Link href="/pengurus/anggota">
-                        <Users />
-                        <span>Anggota</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={location.startsWith("/pengurus/simpanan")}>
-                      <Link href="/pengurus/simpanan">
-                        <Wallet />
-                        <span>Simpanan</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={location.startsWith("/pengurus/pinjaman")}>
-                      <Link href="/pengurus/pinjaman">
-                        <CreditCard />
-                        <span>Pinjaman</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={location.startsWith("/pengurus/unit-usaha")}>
-                      <Link href="/pengurus/unit-usaha">
-                        <Store />
-                        <span>Unit Usaha</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={location.startsWith("/pengurus/keuangan")}>
-                      <Link href="/pengurus/keuangan">
-                        <PieChart />
-                        <span>Keuangan</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={location.startsWith("/pengurus/shu")}>
-                      <Link href="/pengurus/shu">
-                        <Calculator />
-                        <span>Sisa Hasil Usaha</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
+                  {NAV_ITEMS.map(({ href, label, icon: Icon }) => (
+                    <SidebarMenuItem key={href}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={href === "/pengurus/dashboard" ? location === href : location.startsWith(href)}
+                      >
+                        <Link href={href}>
+                          <Icon className="h-4 w-4" />
+                          <span>{label}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
           </SidebarContent>
-          <SidebarFooter className="border-t p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex flex-col">
-                <span className="text-sm font-medium">{user?.nama}</span>
-                <span className="text-xs text-muted-foreground capitalize">{user?.role}</span>
+          <SidebarFooter className="border-t p-3">
+            <div className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted/50 transition-colors">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-bold shrink-0">
+                {user?.nama?.slice(0, 2).toUpperCase() || "PG"}
               </div>
-              <SidebarMenuButton size="sm" onClick={() => logout()} className="w-auto" tooltip="Keluar">
+              <div className="flex flex-col min-w-0 flex-1">
+                <span className="text-sm font-medium truncate">{user?.nama}</span>
+                <span className="text-xs text-muted-foreground">Pengurus</span>
+              </div>
+              <SidebarMenuButton size="sm" onClick={() => logout()} className="w-auto shrink-0 hover:text-destructive" tooltip="Keluar">
                 <LogOut className="h-4 w-4" />
               </SidebarMenuButton>
             </div>
           </SidebarFooter>
         </Sidebar>
-        <div className="flex flex-1 flex-col">
-          <header className="flex h-14 items-center gap-4 border-b bg-background px-4 lg:h-[60px]">
-            <SidebarTrigger />
-            <div className="w-full flex-1">
-              <h1 className="text-lg font-semibold">Pengurus Koperasi</h1>
-            </div>
+        <div className="flex flex-1 flex-col min-w-0">
+          <header className="flex h-14 items-center gap-3 border-b bg-background/95 backdrop-blur-sm px-4 sticky top-0 z-10">
+            <SidebarTrigger className="shrink-0" />
+            <div className="h-4 w-px bg-border shrink-0" />
+            <h1 className="text-sm font-semibold truncate">{pageTitle}</h1>
           </header>
-          <main className="flex-1 overflow-auto bg-muted/20 p-4 md:p-6 lg:p-8">
+          <main className="flex-1 overflow-auto p-4 md:p-6 page-animate">
             {children}
           </main>
         </div>
