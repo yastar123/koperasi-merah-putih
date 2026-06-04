@@ -54,7 +54,7 @@ export default function PengurusAnggotaDetail() {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="page-animate space-y-6">
       <div className="flex items-center gap-4">
         <Link href="/pengurus/anggota" className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground">
           <ArrowLeft className="h-4 w-4" />
@@ -106,27 +106,35 @@ export default function PengurusAnggotaDetail() {
         </Card>
 
         <div className="md:col-span-2 space-y-6">
-          <div className="grid grid-cols-2 gap-4">
-            <Card className="bg-primary/5 border-primary/20">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium flex items-center gap-2 text-primary">
-                  <Wallet className="h-4 w-4" /> Total Simpanan
+          <div className="grid grid-cols-2 gap-4 stagger-in">
+            <Card className="card-lift overflow-hidden border-l-4 border-l-primary">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 pt-4">
+                <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Total Simpanan
                 </CardTitle>
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10 shrink-0">
+                  <Wallet className="h-4 w-4 text-primary" />
+                </div>
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-primary">{formatRupiah(saldo?.totalSimpanan || 0)}</div>
+              <CardContent className="pb-4">
+                <div className="text-xl font-black stat-value text-primary">{formatRupiah(saldo?.totalSimpanan || 0)}</div>
+                <p className="text-xs text-muted-foreground mt-1">Akumulasi seluruh simpanan</p>
               </CardContent>
             </Card>
-            <Card className="bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-900/50">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium flex items-center gap-2 text-red-600 dark:text-red-400">
-                  <CreditCard className="h-4 w-4" /> Total Pinjaman Aktif
+            <Card className="card-lift overflow-hidden border-l-4 border-l-red-400">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 pt-4">
+                <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Pinjaman Aktif
                 </CardTitle>
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-red-50 shrink-0">
+                  <CreditCard className="h-4 w-4 text-red-500" />
+                </div>
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-red-600 dark:text-red-400">
+              <CardContent className="pb-4">
+                <div className="text-xl font-black stat-value text-red-600">
                   {formatRupiah(pinjamanList?.filter(p => p.status === 'disetujui' || p.status === 'macet').reduce((acc, p) => acc + (p.sisaPinjaman || 0), 0) || 0)}
                 </div>
+                <p className="text-xs text-muted-foreground mt-1">Sisa hutang berjalan</p>
               </CardContent>
             </Card>
           </div>

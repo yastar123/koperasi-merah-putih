@@ -26,11 +26,13 @@ export default function PengawasAudit() {
   
   if (!audit) {
     return (
-       <Card className="flex flex-col items-center justify-center p-12 text-center m-8">
-        <ShieldAlert className="h-12 w-12 text-muted-foreground mb-4 opacity-50" />
-        <h3 className="text-lg font-medium mb-1">Audit Belum Dilakukan</h3>
+      <div className="page-animate flex flex-col items-center justify-center py-20 text-center">
+        <div className="h-16 w-16 rounded-2xl bg-muted/60 flex items-center justify-center mb-4">
+          <ShieldAlert className="h-8 w-8 text-muted-foreground/40 empty-state-icon" />
+        </div>
+        <h3 className="text-base font-bold mb-1">Audit Belum Dilakukan</h3>
         <p className="text-sm text-muted-foreground">Belum ada catatan audit untuk tahun ini.</p>
-      </Card>
+      </div>
     );
   }
 
@@ -45,13 +47,15 @@ export default function PengawasAudit() {
         </div>
       </div>
 
-      <Card className="bg-primary/5 border-primary/20">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium">Skor Kesehatan Koperasi</CardTitle>
+      <Card className="card-lift overflow-hidden border-l-4 border-l-primary bg-primary/5 border-primary/20">
+        <CardHeader className="pb-2 pt-4">
+          <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Skor Kesehatan Koperasi
+          </CardTitle>
         </CardHeader>
-        <CardContent className="flex items-end gap-4">
-          <div className={`text-4xl font-bold ${skorWarna}`}>{audit.skorKesehatan}/100</div>
-          <Badge className={audit.statusKeuangan === 'sehat' ? 'bg-green-600' : 'bg-red-600'}>
+        <CardContent className="flex items-end gap-4 pb-4">
+          <div className={`text-4xl font-black stat-value ${skorWarna}`}>{audit.skorKesehatan}<span className="text-xl text-muted-foreground font-medium">/100</span></div>
+          <Badge className={audit.statusKeuangan === 'sehat' ? 'bg-green-600 hover:bg-green-600' : 'bg-red-600 hover:bg-red-600'}>
             {audit.statusKeuangan?.toUpperCase()}
           </Badge>
         </CardContent>
