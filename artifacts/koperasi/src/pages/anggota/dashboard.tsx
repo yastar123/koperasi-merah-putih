@@ -37,7 +37,7 @@ export default function AnggotaDashboard() {
   const pinjamanPending = pinjaman?.find(p => p.status === "pending");
 
   return (
-    <div className="space-y-6">
+    <div className="page-animate space-y-6">
       {/* Welcome header */}
       <div className="space-y-1">
         <h2 className="text-2xl font-black tracking-tight">

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { db, anggotaTable, simpananTable } from "@workspace/db";
+import { db, anggotaTable, simpananTable, pinjamanTable } from "@workspace/db";
 import { eq, and, sql } from "drizzle-orm";
 
 const router = Router();
@@ -15,7 +15,12 @@ async function enrichAnggota(a: typeof anggotaTable.$inferSelect) {
     else totalSimpanan += amt;
   }
 
-  return { ...a, createdAt: a.createdAt.toISOString(), totalSimpanan, totalPinjaman: 0 };
+  const [pinRow] = await db.select({ total: sql<number>`coalesce(sum(jumlah_pinjaman), 0)` })
+    .from(pinjamanTable)
+    .where(and(eq(pinjamanTable.anggotaId, a.id), sql`status in ('disetujui', 'macet')`));
+  const totalPinjaman = Number(pinRow?.total ?? 0);
+
+  return { ...a, createdAt: a.createdAt.toISOString(), totalSimpanan, totalPinjaman };
 }
 
 // GET /anggota

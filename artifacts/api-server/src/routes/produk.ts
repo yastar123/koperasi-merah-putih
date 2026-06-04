@@ -50,12 +50,14 @@ router.post("/produk", async (req, res) => {
 
 // PATCH /produk/:id
 router.patch("/produk/:id", async (req, res) => {
-  const { nama, hargaBeli, hargaJual, stok } = req.body;
+  const { nama, kategori, hargaBeli, hargaJual, stok, satuan } = req.body;
   const updates: Partial<typeof produkTable.$inferInsert> = {};
   if (nama) updates.nama = nama;
+  if (kategori) updates.kategori = kategori;
   if (hargaBeli !== undefined) updates.hargaBeli = String(hargaBeli);
   if (hargaJual !== undefined) updates.hargaJual = String(hargaJual);
   if (stok !== undefined) updates.stok = String(stok);
+  if (satuan) updates.satuan = satuan;
 
   const [p] = await db.update(produkTable).set(updates).where(eq(produkTable.id, Number(req.params.id))).returning();
   if (!p) { res.status(404).json({ error: "Produk tidak ditemukan" }); return; }

@@ -38,7 +38,7 @@ router.get("/dashboard/stats", async (req, res) => {
     : sql`status in ('disetujui', 'macet')`;
   const [pinRow] = await db.select({ total: sql<number>`coalesce(sum(jumlah_pinjaman), 0)`, c: sql<number>`count(*)` }).from(pinjamanTable).where(pinjamanWhere);
   const totalPinjaman = Number(pinRow?.total ?? 0);
-  const pinjamanAktif = Number(pinRow?.c ?? 0);
+  const pinjamanAktif = Number(pinRow?.total ?? 0);
 
   // Tunggakan (angsuran terlambat)
   const [tgkRow] = await db.select({ total: sql<number>`coalesce(sum(jumlah_angsuran), 0)` })

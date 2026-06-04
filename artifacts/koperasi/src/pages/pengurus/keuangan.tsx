@@ -99,7 +99,7 @@ export default function PengurusKeuangan() {
     : "0";
 
   return (
-    <div className="space-y-6">
+    <div className="page-animate space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-1">
           <h2 className="text-2xl font-black tracking-tight">Laporan Keuangan</h2>

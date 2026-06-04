@@ -32,14 +32,27 @@ export default function AnggotaKartu() {
 
   if (!anggota) return null;
 
+  const handlePrint = () => {
+    window.print();
+  };
+
   return (
-    <div className="flex flex-col items-center gap-6 py-2 max-w-sm mx-auto">
+    <div className="page-animate flex flex-col items-center gap-6 py-2 max-w-sm mx-auto">
       {/* Header */}
       <div className="text-center space-y-1 w-full">
         <h2 className="text-2xl font-black tracking-tight">Kartu Anggota Digital</h2>
         <p className="text-muted-foreground text-sm">
           Tunjukkan QR code ini saat bertransaksi di unit usaha koperasi
         </p>
+        <Button
+          variant="outline"
+          size="sm"
+          className="mt-2 gap-2"
+          onClick={handlePrint}
+        >
+          <Download className="h-3.5 w-3.5" />
+          Unduh / Cetak Kartu
+        </Button>
       </div>
 
       {/* Card */}

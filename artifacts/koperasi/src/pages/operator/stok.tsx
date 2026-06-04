@@ -102,7 +102,7 @@ export default function OperatorStok() {
   };
 
   const onEdit = (data: ProdukForm) => {
-    updateProduk.mutate({ id: editProduk.id, data: { nama: data.nama, hargaBeli: data.hargaBeli, hargaJual: data.hargaJual, stok: data.stok } });
+    updateProduk.mutate({ id: editProduk.id, data: { nama: data.nama, kategori: data.kategori, hargaBeli: data.hargaBeli, hargaJual: data.hargaJual, stok: data.stok, satuan: data.satuan } });
   };
 
   const onCreate = (data: ProdukForm) => {

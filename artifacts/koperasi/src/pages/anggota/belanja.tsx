@@ -71,7 +71,7 @@ export default function AnggotaBelanja() {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="page-animate space-y-6">
       {/* Header */}
       <div className="space-y-1">
         <h2 className="text-2xl font-black tracking-tight">Katalog Unit Usaha</h2>

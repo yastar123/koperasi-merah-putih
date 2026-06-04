@@ -652,9 +652,11 @@ export const UpdateProdukParams = zod.object({
 
 export const UpdateProdukBody = zod.object({
   "nama": zod.string().optional(),
+  "kategori": zod.string().optional(),
   "hargaBeli": zod.number().optional(),
   "hargaJual": zod.number().optional(),
-  "stok": zod.number().optional()
+  "stok": zod.number().optional(),
+  "satuan": zod.string().optional()
 })
 
 export const UpdateProdukResponse = zod.object({

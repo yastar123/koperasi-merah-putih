@@ -1,3 +1,5 @@
 - [TanStack Query v5 queryKey fix](tanstack-query-v5.md) — Orval-generated hooks require `queryKey: []` in every `{ query: {...} }` options object.
 - [Null vs undefined in hook params](null-undefined-params.md) — `user?.koperasiId` is `number | null | undefined`; params expect `number | undefined`; fix with `?? undefined`.
-- [ProdukUpdate type](produk-update-type.md) — `ProdukUpdate` only has `nama?, hargaBeli?, hargaJual?, stok?`; no `unitUsahaId` or `satuan` — omit them on update calls.
+- [ProdukUpdate type](produk-update-type.md) — Now includes `nama?, kategori?, hargaBeli?, hargaJual?, stok?, satuan?` after extending OpenAPI spec + codegen; API route /PATCH produk also updated to accept these fields.
+- [enrichKoperasi totalAset](enrich-koperasi-aset.md) — Was hardcoded 0; now computed as simpanan + omzet from DB; same approach used in laporan/keuangan endpoint.
+- [pinjamanAktif is amount not count](pinjaman-aktif-amount.md) — dashboard.ts `pinjamanAktif` must be the SUM amount (not COUNT) — frontend formats it as Rupiah and uses it in NPL/liquidity ratios.

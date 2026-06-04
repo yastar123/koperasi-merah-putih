@@ -1402,12 +1402,16 @@ components:
       properties:
         nama:
           type: string
+        kategori:
+          type: string
         hargaBeli:
           type: number
         hargaJual:
           type: number
         stok:
           type: number
+        satuan:
+          type: string
 
     # ─── TRANSAKSI ────────────────────────────────────────────────────────────
     Transaksi:

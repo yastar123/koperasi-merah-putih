@@ -54,7 +54,7 @@ export default function PengawasLaporan() {
   const isProfit = laporan.labaRugi >= 0;
 
   return (
-    <div className="space-y-6">
+    <div className="page-animate space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
         <div className="space-y-1">
@@ -136,11 +136,9 @@ export default function PengawasLaporan() {
           </CardHeader>
           <CardContent>
             <div className="space-y-0.5">
-              <NeracaRow label="Kas & Bank" value={laporan.totalAset * 0.2} />
-              <NeracaRow label="Piutang Anggota" value={laporan.totalPinjaman} />
-              <NeracaRow label="Aset Tetap & Inventori" value={laporan.totalAset * 0.4} />
-              <NeracaRow label="Simpanan di Bank Lain" value={laporan.totalAset * 0.1} />
-              <NeracaRow label="Lain-lain" value={laporan.totalAset - laporan.totalPinjaman - (laporan.totalAset * 0.7)} />
+              <NeracaRow label="Piutang Anggota (Pinjaman Aktif)" value={laporan.totalPinjaman} />
+              <NeracaRow label="Kas & Setara Kas" value={Math.max(0, laporan.totalSimpanan - laporan.totalPinjaman)} />
+              <NeracaRow label="Pendapatan Unit Usaha" value={laporan.totalAset - laporan.totalSimpanan} />
               <NeracaRow label="Total Aktiva" value={laporan.totalAset} isTotal />
             </div>
           </CardContent>
@@ -161,13 +159,11 @@ export default function PengawasLaporan() {
           </CardHeader>
           <CardContent>
             <div className="space-y-0.5">
-              <NeracaRow label="Simpanan Anggota" value={laporan.totalSimpanan} />
-              <NeracaRow label="Hutang Jangka Pendek" value={laporan.totalAset * 0.05} />
-              <NeracaRow label="Hutang Jangka Panjang" value={laporan.totalAset * 0.05} />
-              <NeracaRow label="SHU Ditahan" value={laporan.labaRugi > 0 ? laporan.labaRugi * 0.3 : 0} />
+              <NeracaRow label="Kewajiban terhadap Anggota (Simpanan)" value={laporan.totalSimpanan} />
+              <NeracaRow label="SHU Periode Berjalan" value={laporan.labaRugi > 0 ? laporan.labaRugi : 0} />
               <NeracaRow
-                label="Modal Koperasi"
-                value={laporan.totalAset - laporan.totalSimpanan - (laporan.totalAset * 0.1)}
+                label="Modal & Cadangan Koperasi"
+                value={laporan.totalAset - laporan.totalSimpanan - (laporan.labaRugi > 0 ? laporan.labaRugi : 0)}
               />
               <NeracaRow label="Total Pasiva" value={laporan.totalAset} isTotal />
             </div>

@@ -8,7 +8,9 @@
 
 export interface ProdukUpdate {
   nama?: string;
+  kategori?: string;
   hargaBeli?: number;
   hargaJual?: number;
   stok?: number;
+  satuan?: string;
 }

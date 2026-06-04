@@ -284,7 +284,7 @@ export default function PengurusUnitUsaha() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="page-animate space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Unit Usaha Koperasi</h2>

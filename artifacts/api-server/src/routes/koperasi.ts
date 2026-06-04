@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { db, koperasiTable, anggotaTable } from "@workspace/db";
+import { db, koperasiTable, anggotaTable, simpananTable, transaksiTable, unitUsahaTable } from "@workspace/db";
 import { eq, and, sql } from "drizzle-orm";
 
 const router = Router();
@@ -10,11 +10,29 @@ async function enrichKoperasi(k: typeof koperasiTable.$inferSelect) {
     .from(anggotaTable)
     .where(and(eq(anggotaTable.koperasiId, k.id), eq(anggotaTable.status, "aktif")));
 
+  const angIds = (await db.select({ id: anggotaTable.id }).from(anggotaTable).where(eq(anggotaTable.koperasiId, k.id))).map(a => a.id);
+  let totalSimpanan = 0;
+  if (angIds.length) {
+    const [simpRow] = await db.select({ total: sql<number>`coalesce(sum(jumlah), 0)` })
+      .from(simpananTable)
+      .where(sql`anggota_id = ANY(${angIds}) AND jenis != 'penarikan'`);
+    totalSimpanan = Number(simpRow?.total ?? 0);
+  }
+
+  const unitIds = (await db.select({ id: unitUsahaTable.id }).from(unitUsahaTable).where(eq(unitUsahaTable.koperasiId, k.id))).map(u => u.id);
+  let totalOmzet = 0;
+  if (unitIds.length) {
+    const [omzetRow] = await db.select({ total: sql<number>`coalesce(sum(total_harga), 0)` })
+      .from(transaksiTable)
+      .where(sql`unit_usaha_id = ANY(${unitIds})`);
+    totalOmzet = Number(omzetRow?.total ?? 0);
+  }
+
   return {
     ...k,
     createdAt: k.createdAt.toISOString(),
     jumlahAnggota: Number(anggotaCount[0]?.count ?? 0),
-    totalAset: 0,
+    totalAset: totalSimpanan + totalOmzet,
   };
 }
 

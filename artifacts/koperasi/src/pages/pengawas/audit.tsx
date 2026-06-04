@@ -37,7 +37,7 @@ export default function PengawasAudit() {
   const skorWarna = audit.skorKesehatan >= 80 ? "text-green-600" : audit.skorKesehatan >= 60 ? "text-yellow-600" : "text-red-600";
 
   return (
-    <div className="space-y-6">
+    <div className="page-animate space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Laporan Audit & Kesehatan</h2>
