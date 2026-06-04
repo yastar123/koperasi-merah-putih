@@ -37,9 +37,9 @@ export default function AnggotaKartu() {
   };
 
   return (
-    <div className="page-animate flex flex-col items-center gap-6 py-2 max-w-sm mx-auto">
+    <div className="page-animate flex flex-col items-center gap-6 py-2 max-w-sm mx-auto print-kartu">
       {/* Header */}
-      <div className="text-center space-y-1 w-full">
+      <div className="text-center space-y-1 w-full print:hidden">
         <h2 className="text-2xl font-black tracking-tight">Kartu Anggota Digital</h2>
         <p className="text-muted-foreground text-sm">
           Tunjukkan QR code ini saat bertransaksi di unit usaha koperasi
@@ -57,7 +57,7 @@ export default function AnggotaKartu() {
 
       {/* Card */}
       <div className="w-full fade-in-up" style={{ perspective: "1000px" }}>
-        <div className="relative w-full rounded-2xl overflow-hidden shadow-2xl" style={{ minHeight: "200px" }}>
+        <div className="member-card relative w-full rounded-2xl overflow-hidden shadow-2xl" style={{ minHeight: "200px" }}>
           {/* Gradient background */}
           <div className="absolute inset-0 bg-gradient-to-br from-red-700 via-primary to-red-900" />
 

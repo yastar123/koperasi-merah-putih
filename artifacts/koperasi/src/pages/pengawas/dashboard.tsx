@@ -95,7 +95,7 @@ export default function PengawasDashboard() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="page-animate space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div>
           <h2 className="text-2xl font-black tracking-tight">Overview Kinerja Koperasi</h2>

@@ -61,12 +61,13 @@ export default function OperatorPOS() {
   };
 
   const updateQty = (id: number, delta: number) => {
-    setCart(prev => prev.map(item => {
-      if (item.produk.id !== id) return item;
+    setCart(prev => prev.reduce((acc, item) => {
+      if (item.produk.id !== id) return [...acc, item];
       const newQty = item.qty + delta;
-      if (newQty > item.produk.stok || newQty <= 0) return item;
-      return { ...item, qty: newQty };
-    }));
+      if (newQty <= 0) return acc;
+      if (newQty > item.produk.stok) return [...acc, item];
+      return [...acc, { ...item, qty: newQty }];
+    }, [] as typeof prev));
   };
 
   const removeFromCart = (id: number) => {
@@ -122,7 +123,7 @@ export default function OperatorPOS() {
   }
 
   return (
-    <div className="page-animate flex flex-col gap-4 h-[calc(100vh-3.5rem-2rem)]">
+    <div className="page-animate flex flex-col gap-4 lg:h-[calc(100vh-3.5rem-3rem)]">
       {unitList.length > 1 && (
         <div className="flex items-center gap-2 shrink-0">
           <Store className="h-4 w-4 text-muted-foreground shrink-0" />

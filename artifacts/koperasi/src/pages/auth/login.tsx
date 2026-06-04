@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -8,6 +8,26 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Eye, EyeOff, LogIn } from "lucide-react";
+
+function useCountUp(target: number, duration = 1600, delay = 0) {
+  const [count, setCount] = useState(0);
+  const rafRef = useRef<number>(0);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const start = performance.now();
+      const tick = (now: number) => {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        const ease = 1 - Math.pow(1 - progress, 3);
+        setCount(Math.round(target * ease));
+        if (progress < 1) rafRef.current = requestAnimationFrame(tick);
+      };
+      rafRef.current = requestAnimationFrame(tick);
+    }, delay);
+    return () => { clearTimeout(timer); cancelAnimationFrame(rafRef.current); };
+  }, [target, duration, delay]);
+  return count;
+}
 
 const loginSchema = z.object({
   username: z.string().min(1, "Username wajib diisi"),
@@ -22,12 +42,30 @@ const DEMO_ACCOUNTS = [
   { value: "operator1", label: "Operator — Unit Usaha Sembako", role: "Operator", color: "bg-orange-100 text-orange-700" },
 ];
 
-const STATS = [
-  { value: "2.4K+", label: "Koperasi Aktif" },
-  { value: "180K+", label: "Total Anggota" },
-  { value: "Rp 2.1T", label: "Aset Nasional" },
-  { value: "50K+", label: "Transaksi/Hari" },
-];
+function AnimatedStats() {
+  const koperasi = useCountUp(2400, 1400, 400);
+  const anggota = useCountUp(180000, 1600, 550);
+  const transaksi = useCountUp(50000, 1500, 700);
+  const stats = [
+    { display: koperasi >= 2400 ? "2.4K+" : koperasi >= 1000 ? `${(koperasi / 1000).toFixed(1)}K` : String(koperasi), label: "Koperasi Aktif" },
+    { display: anggota >= 180000 ? "180K+" : anggota >= 1000 ? `${Math.floor(anggota / 1000)}K` : String(anggota), label: "Total Anggota" },
+    { display: "Rp 2.1T", label: "Aset Nasional" },
+    { display: transaksi >= 50000 ? "50K+" : transaksi >= 1000 ? `${Math.floor(transaksi / 1000)}K` : String(transaksi), label: "Transaksi/Hari" },
+  ];
+  return (
+    <div className="grid grid-cols-2 gap-3 fade-in-up" style={{animationDelay: "200ms"}}>
+      {stats.map((stat) => (
+        <div
+          key={stat.label}
+          className="bg-white/8 rounded-2xl p-4 border border-white/10 hover:bg-white/12 transition-colors cursor-default"
+        >
+          <div className="text-white font-bold text-2xl tracking-tight tabular-nums">{stat.display}</div>
+          <div className="text-white/50 text-xs mt-0.5 font-medium">{stat.label}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export default function Login() {
   const { login, isLoggingIn } = useAuth();
@@ -100,18 +138,7 @@ export default function Login() {
           </div>
 
           {/* Stats grid */}
-          <div className="grid grid-cols-2 gap-3 fade-in-up" style={{animationDelay: "200ms"}}>
-            {STATS.map((stat, i) => (
-              <div
-                key={stat.label}
-                className="bg-white/8 rounded-2xl p-4 border border-white/10 hover:bg-white/12 transition-colors cursor-default"
-                style={{animationDelay: `${i * 50}ms`}}
-              >
-                <div className="text-white font-bold text-2xl tracking-tight">{stat.value}</div>
-                <div className="text-white/50 text-xs mt-0.5 font-medium">{stat.label}</div>
-              </div>
-            ))}
-          </div>
+          <AnimatedStats />
 
           {/* Tagline */}
           <div className="fade-in-up flex items-center gap-3 py-4 border-t border-white/10" style={{animationDelay: "300ms"}}>
