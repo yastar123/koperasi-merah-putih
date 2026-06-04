@@ -9,30 +9,69 @@ import {
 import { LayoutDashboard, Wallet, CreditCard, ShoppingBag, IdCard, LogOut } from "lucide-react";
 
 const NAV_ITEMS = [
-  { href: "/anggota/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/anggota/simpanan", label: "Simpanan Saya", icon: Wallet },
-  { href: "/anggota/pinjaman", label: "Pinjaman Saya", icon: CreditCard },
-  { href: "/anggota/belanja", label: "Belanja Unit Usaha", icon: ShoppingBag },
-  { href: "/anggota/kartu", label: "Kartu Anggota", icon: IdCard },
+  { href: "/anggota/dashboard", label: "Dashboard",  shortLabel: "Home",     icon: LayoutDashboard },
+  { href: "/anggota/simpanan",  label: "Simpanan Saya",   shortLabel: "Simpanan", icon: Wallet },
+  { href: "/anggota/pinjaman",  label: "Pinjaman Saya",   shortLabel: "Pinjaman", icon: CreditCard },
+  { href: "/anggota/belanja",   label: "Belanja Unit Usaha", shortLabel: "Belanja", icon: ShoppingBag },
+  { href: "/anggota/kartu",     label: "Kartu Anggota",   shortLabel: "Kartu",    icon: IdCard },
 ];
 
 const PAGE_TITLES: Record<string, string> = {
   "/anggota/dashboard": "Dashboard Saya",
-  "/anggota/simpanan": "Buku Simpanan",
-  "/anggota/pinjaman": "Pinjaman Saya",
-  "/anggota/belanja": "Belanja Unit Usaha",
-  "/anggota/kartu": "Kartu Anggota Digital",
+  "/anggota/simpanan":  "Buku Simpanan",
+  "/anggota/pinjaman":  "Pinjaman Saya",
+  "/anggota/belanja":   "Belanja Unit Usaha",
+  "/anggota/kartu":     "Kartu Anggota Digital",
 };
 
 function TodayBadge() {
   const now = new Date();
-  const day = now.toLocaleDateString("id-ID", { weekday: "short" });
+  const day  = now.toLocaleDateString("id-ID", { weekday: "short" });
   const date = now.toLocaleDateString("id-ID", { day: "numeric", month: "short" });
   return (
     <div className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/60 px-2.5 py-1.5 rounded-lg select-none">
       <span className="font-medium text-foreground/70">{day},</span>
       <span>{date}</span>
     </div>
+  );
+}
+
+function MobileBottomNav({ location }: { location: string }) {
+  return (
+    <nav className="fixed bottom-0 left-0 right-0 z-40 md:hidden border-t border-border/60 bg-background/95 backdrop-blur-md mobile-bottom-nav">
+      <div className="flex items-stretch justify-around px-1 pt-1 pb-2">
+        {NAV_ITEMS.map(({ href, shortLabel, icon: Icon }) => {
+          const isActive = href === "/anggota/dashboard"
+            ? location === href
+            : location.startsWith(href);
+          return (
+            <Link
+              key={href}
+              href={href}
+              className={`relative flex flex-col items-center gap-1 flex-1 py-1.5 rounded-xl transition-all duration-200 ${
+                isActive
+                  ? "text-primary"
+                  : "text-muted-foreground active:text-foreground"
+              }`}
+            >
+              <div className={`relative flex h-7 w-7 items-center justify-center rounded-xl transition-all duration-200 ${
+                isActive ? "bg-primary/10 scale-110" : ""
+              }`}>
+                <Icon className={`transition-all duration-200 ${isActive ? "h-[17px] w-[17px]" : "h-[18px] w-[18px]"}`} />
+              </div>
+              <span className={`text-[10px] leading-none font-semibold tracking-tight transition-all duration-200 ${
+                isActive ? "text-primary" : "text-muted-foreground/80"
+              }`}>
+                {shortLabel}
+              </span>
+              {isActive && (
+                <span className="absolute bottom-0 h-0.5 w-6 rounded-full bg-primary" />
+              )}
+            </Link>
+          );
+        })}
+      </div>
+    </nav>
   );
 }
 
@@ -45,10 +84,7 @@ export function AnggotaLayout({ children }: { children: React.ReactNode }) {
     { query: { queryKey: [], enabled: !!user?.koperasiId } }
   );
 
-  const pageTitle = Object.entries(PAGE_TITLES).find(([path]) =>
-    location.startsWith(path)
-  )?.[1] ?? "Anggota Koperasi";
-
+  const pageTitle    = Object.entries(PAGE_TITLES).find(([path]) => location.startsWith(path))?.[1] ?? "Anggota Koperasi";
   const koperasiName = koperasi?.nama ?? (user?.koperasiId ? "Memuat..." : "Anggota");
 
   return (
@@ -115,11 +151,13 @@ export function AnggotaLayout({ children }: { children: React.ReactNode }) {
             <h1 className="text-sm font-semibold truncate flex-1">{pageTitle}</h1>
             <TodayBadge />
           </header>
-          <main className="flex-1 overflow-auto p-4 md:p-6 page-animate">
+          <main className="flex-1 overflow-auto p-4 md:p-6 pb-24 md:pb-6 page-animate">
             {children}
           </main>
         </div>
       </div>
+
+      <MobileBottomNav location={location} />
     </SidebarProvider>
   );
 }
