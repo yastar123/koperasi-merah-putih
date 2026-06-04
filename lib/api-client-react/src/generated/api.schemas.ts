@@ -541,6 +541,7 @@ provinsi?: string;
 export type ListAnggotaParams = {
 koperasiId?: number;
 status?: string;
+userId?: number;
 };
 
 export type ListSimpananParams = {

@@ -9,4 +9,5 @@
 export type ListAnggotaParams = {
 koperasiId?: number;
 status?: string;
+userId?: number;
 };

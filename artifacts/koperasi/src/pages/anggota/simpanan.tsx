@@ -1,4 +1,4 @@
-import { useAuth } from "@/hooks/use-auth";
+import { useCurrentAnggota } from "@/hooks/use-current-anggota";
 import { useListSimpanan, useGetSaldoAnggota } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -7,16 +7,16 @@ import { Badge } from "@/components/ui/badge";
 import { Wallet } from "lucide-react";
 
 export default function AnggotaSimpanan() {
-  const { user } = useAuth();
-  
+  const { anggotaId, isLoading: isLoadingAnggota } = useCurrentAnggota();
+
   const { data: saldo } = useGetSaldoAnggota(
-    user?.id || 0,
-    { query: { queryKey: [], enabled: !!user?.id } }
+    anggotaId ?? 0,
+    { query: { queryKey: [], enabled: !!anggotaId } }
   );
 
   const { data: simpananList, isLoading } = useListSimpanan(
-    { anggotaId: user?.id ?? undefined },
-    { query: { queryKey: [], enabled: !!user?.id } }
+    { anggotaId: anggotaId ?? undefined },
+    { query: { queryKey: [], enabled: !!anggotaId } }
   );
 
   return (
@@ -99,7 +99,7 @@ export default function AnggotaSimpanan() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {isLoading ? (
+              {isLoadingAnggota || isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <TableRow key={i}>
                     {Array.from({ length: 4 }).map((_, j) => (

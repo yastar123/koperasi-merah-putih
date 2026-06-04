@@ -1,6 +1,7 @@
 import { useAuth } from "@/hooks/use-auth";
+import { useCurrentAnggota } from "@/hooks/use-current-anggota";
 import { useGetSaldoAnggota, useListPinjaman } from "@workspace/api-client-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatRupiah, formatDate, getStatusBadgeVariant } from "@/lib/format";
 import { Wallet, CreditCard, ArrowRight, TrendingUp, CheckCircle } from "lucide-react";
 import { Link } from "wouter";
@@ -8,17 +9,18 @@ import { Badge } from "@/components/ui/badge";
 
 export default function AnggotaDashboard() {
   const { user } = useAuth();
+  const { anggotaId, isLoading: isLoadingAnggota } = useCurrentAnggota();
 
   const { data: saldo, isLoading: isLoadingSaldo } = useGetSaldoAnggota(
-    user?.id ?? 0,
-    { query: { queryKey: [], enabled: !!user?.id } }
+    anggotaId ?? 0,
+    { query: { queryKey: [], enabled: !!anggotaId } }
   );
   const { data: pinjaman, isLoading: isLoadingPinjaman } = useListPinjaman(
-    { anggotaId: user?.id ?? undefined },
-    { query: { queryKey: [], enabled: !!user?.id } }
+    { anggotaId: anggotaId ?? undefined },
+    { query: { queryKey: [], enabled: !!anggotaId } }
   );
 
-  if (isLoadingSaldo || isLoadingPinjaman) {
+  if (isLoadingAnggota || isLoadingSaldo || isLoadingPinjaman) {
     return (
       <div className="page-animate space-y-6">
         <div className="space-y-2">

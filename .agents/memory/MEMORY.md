@@ -3,3 +3,4 @@
 - [ProdukUpdate type](produk-update-type.md) — Now includes `nama?, kategori?, hargaBeli?, hargaJual?, stok?, satuan?` after extending OpenAPI spec + codegen; API route /PATCH produk also updated to accept these fields.
 - [enrichKoperasi totalAset](enrich-koperasi-aset.md) — Was hardcoded 0; now computed as simpanan + omzet from DB; same approach used in laporan/keuangan endpoint.
 - [pinjamanAktif is amount not count](pinjaman-aktif-amount.md) — dashboard.ts `pinjamanAktif` must be the SUM amount (not COUNT) — frontend formats it as Rupiah and uses it in NPL/liquidity ratios.
+- [Anggota ID vs User ID](anggota-id-fix.md) — anggota pages must use anggota.id (not user.id); use `useCurrentAnggota` hook which calls listAnggota({userId}) to resolve the correct ID.

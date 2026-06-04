@@ -296,6 +296,10 @@ paths:
           name: status
           schema:
             type: string
+        - in: query
+          name: userId
+          schema:
+            type: integer
       responses:
         "200":
           description: List anggota

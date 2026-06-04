@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
+import { useCurrentAnggota } from "@/hooks/use-current-anggota";
 import { useListPinjaman, useCreatePinjaman } from "@workspace/api-client-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -28,12 +29,13 @@ const TENOR_OPTIONS = [3, 6, 12, 18, 24, 36, 48, 60];
 
 export default function AnggotaPinjaman() {
   const { user } = useAuth();
+  const { anggotaId, isLoading: isLoadingAnggota } = useCurrentAnggota();
   const { toast } = useToast();
   const [openDialog, setOpenDialog] = useState(false);
 
   const { data: pinjamanList, isLoading, refetch } = useListPinjaman(
-    { anggotaId: user?.id ?? undefined },
-    { query: { queryKey: [], enabled: !!user?.id } }
+    { anggotaId: anggotaId ?? undefined },
+    { query: { queryKey: [], enabled: !!anggotaId } }
   );
 
   const createPinjaman = useCreatePinjaman({
@@ -56,10 +58,14 @@ export default function AnggotaPinjaman() {
   });
 
   const onSubmit = (data: PinjamanForm) => {
+    if (!anggotaId) {
+      toast({ title: "Data anggota belum tersedia", variant: "destructive" });
+      return;
+    }
     createPinjaman.mutate({
       data: {
         ...data,
-        anggotaId: user?.id!,
+        anggotaId,
       }
     });
   };
@@ -77,7 +83,7 @@ export default function AnggotaPinjaman() {
           <h2 className="text-2xl font-bold tracking-tight">Pinjaman Saya</h2>
           <p className="text-muted-foreground">Lihat status pengajuan dan jadwal angsuran.</p>
         </div>
-        <Button onClick={() => setOpenDialog(true)}>
+        <Button onClick={() => setOpenDialog(true)} disabled={!anggotaId}>
           <Plus className="mr-2 h-4 w-4" />
           Ajukan Pinjaman Baru
         </Button>
@@ -97,7 +103,7 @@ export default function AnggotaPinjaman() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {isLoading ? (
+                {isLoadingAnggota || isLoading ? (
                   Array.from({ length: 3 }).map((_, i) => (
                     <TableRow key={i}>
                       {Array.from({ length: 5 }).map((_, j) => (
@@ -112,7 +118,7 @@ export default function AnggotaPinjaman() {
                         <CreditCard className="h-12 w-12 text-muted-foreground/30 mb-3" />
                         <p className="font-medium text-muted-foreground">Anda belum memiliki riwayat pinjaman</p>
                         <p className="text-sm text-muted-foreground mt-1">Ajukan pinjaman pertama Anda sekarang.</p>
-                        <Button className="mt-4" size="sm" onClick={() => setOpenDialog(true)}>
+                        <Button className="mt-4" size="sm" onClick={() => setOpenDialog(true)} disabled={!anggotaId}>
                           Ajukan Pinjaman
                         </Button>
                       </div>
@@ -192,7 +198,7 @@ export default function AnggotaPinjaman() {
               )} />
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setOpenDialog(false)}>Batal</Button>
-                <Button type="submit" disabled={createPinjaman.isPending}>
+                <Button type="submit" disabled={createPinjaman.isPending || !anggotaId}>
                   {createPinjaman.isPending ? "Mengirim..." : "Kirim Pengajuan"}
                 </Button>
               </DialogFooter>

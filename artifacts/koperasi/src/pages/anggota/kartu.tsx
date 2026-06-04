@@ -1,23 +1,21 @@
 import { useAuth } from "@/hooks/use-auth";
-import { useGetAnggota, useGetSaldoAnggota } from "@workspace/api-client-react";
+import { useCurrentAnggota } from "@/hooks/use-current-anggota";
+import { useGetSaldoAnggota } from "@workspace/api-client-react";
 import { formatRupiah, formatDate } from "@/lib/format";
 import { QRCodeSVG } from "qrcode.react";
-import { Wallet, Calendar, Hash, User, Download } from "lucide-react";
+import { Wallet, Calendar, User, Download, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function AnggotaKartu() {
   const { user } = useAuth();
+  const { anggota, anggotaId, isLoading: isLoadingAnggota } = useCurrentAnggota();
 
-  const { data: anggota, isLoading } = useGetAnggota(
-    user?.id || 0,
-    { query: { queryKey: [], enabled: !!user?.id } }
-  );
   const { data: saldo } = useGetSaldoAnggota(
-    user?.id || 0,
-    { query: { queryKey: [], enabled: !!user?.id } }
+    anggotaId ?? 0,
+    { query: { queryKey: [], enabled: !!anggotaId } }
   );
 
-  if (isLoading) {
+  if (isLoadingAnggota) {
     return (
       <div className="page-animate flex flex-col items-center gap-6 py-4">
         <div className="text-center space-y-2">
@@ -30,7 +28,21 @@ export default function AnggotaKartu() {
     );
   }
 
-  if (!anggota) return null;
+  if (!anggota) {
+    return (
+      <div className="page-animate flex flex-col items-center justify-center py-16 text-center gap-4">
+        <div className="h-16 w-16 rounded-2xl bg-muted/60 flex items-center justify-center">
+          <AlertCircle className="h-8 w-8 text-muted-foreground/40" />
+        </div>
+        <div>
+          <h3 className="text-base font-bold">Data Anggota Belum Tersedia</h3>
+          <p className="text-sm text-muted-foreground mt-1 max-w-xs">
+            Akun Anda belum terdaftar sebagai anggota koperasi. Hubungi pengurus untuk pendaftaran.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   const handlePrint = () => {
     window.print();
@@ -118,7 +130,7 @@ export default function AnggotaKartu() {
 
                 <div className="mt-2 inline-flex items-center gap-1 bg-white/15 rounded-full px-2 py-0.5 text-[10px] text-white/80 font-medium">
                   <div className="h-1.5 w-1.5 rounded-full bg-green-400" />
-                  Anggota Aktif
+                  {anggota.status === "aktif" ? "Anggota Aktif" : anggota.status === "pending" ? "Menunggu Verifikasi" : "Anggota"}
                 </div>
               </div>
             </div>
@@ -153,13 +165,13 @@ export default function AnggotaKartu() {
             </div>
             <div className="space-y-2.5 text-sm">
               {[
-                { label: "Simpanan Pokok", value: saldo.simpananPokok || 0, color: "text-foreground" },
-                { label: "Simpanan Wajib", value: saldo.simpananWajib || 0, color: "text-foreground" },
-                { label: "Simpanan Sukarela", value: saldo.simpananSukarela || 0, color: "text-foreground" },
+                { label: "Simpanan Pokok", value: saldo.simpananPokok || 0 },
+                { label: "Simpanan Wajib", value: saldo.simpananWajib || 0 },
+                { label: "Simpanan Sukarela", value: saldo.simpananSukarela || 0 },
               ].map(item => (
                 <div key={item.label} className="flex justify-between items-center">
                   <span className="text-muted-foreground">{item.label}</span>
-                  <span className={`font-semibold tabular-nums ${item.color}`}>{formatRupiah(item.value)}</span>
+                  <span className="font-semibold tabular-nums">{formatRupiah(item.value)}</span>
                 </div>
               ))}
             </div>
@@ -171,8 +183,8 @@ export default function AnggotaKartu() {
       <div className="w-full grid grid-cols-2 gap-3 fade-in-up" style={{ animationDelay: "200ms" }}>
         <div className="bg-muted/40 rounded-xl p-4 border border-border/40">
           <User className="h-4 w-4 text-muted-foreground mb-2" />
-          <div className="text-xs text-muted-foreground">ID Anggota</div>
-          <div className="font-mono font-bold text-sm mt-0.5">{anggota.id}</div>
+          <div className="text-xs text-muted-foreground">No. Anggota</div>
+          <div className="font-mono font-bold text-sm mt-0.5 truncate">{anggota.nomorAnggota}</div>
         </div>
         <div className="bg-muted/40 rounded-xl p-4 border border-border/40">
           <Calendar className="h-4 w-4 text-muted-foreground mb-2" />

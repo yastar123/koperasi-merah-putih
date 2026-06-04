@@ -25,10 +25,11 @@ async function enrichAnggota(a: typeof anggotaTable.$inferSelect) {
 
 // GET /anggota
 router.get("/anggota", async (req, res) => {
-  const { koperasiId, status } = req.query as Record<string, string>;
+  const { koperasiId, status, userId } = req.query as Record<string, string>;
   const filters = [];
   if (koperasiId) filters.push(eq(anggotaTable.koperasiId, Number(koperasiId)));
   if (status) filters.push(eq(anggotaTable.status, status));
+  if (userId) filters.push(eq(anggotaTable.userId, Number(userId)));
 
   const list = filters.length
     ? await db.select().from(anggotaTable).where(and(...filters))

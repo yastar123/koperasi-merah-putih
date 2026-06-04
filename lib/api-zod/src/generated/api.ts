@@ -276,7 +276,8 @@ export const VerifikasiKoperasiResponse = zod.object({
  */
 export const ListAnggotaQueryParams = zod.object({
   "koperasiId": zod.coerce.number().optional(),
-  "status": zod.coerce.string().optional()
+  "status": zod.coerce.string().optional(),
+  "userId": zod.coerce.number().optional()
 })
 
 export const ListAnggotaResponseItem = zod.object({
