@@ -47,9 +47,12 @@ export default function SuperAdminLaporan() {
   );
 
   if (!dashboardData) return (
-    <div className="flex flex-col items-center justify-center py-16 text-center">
-      <Globe className="h-12 w-12 text-muted-foreground/20 mb-3" />
-      <p className="text-muted-foreground">Data laporan tidak tersedia.</p>
+    <div className="page-animate flex flex-col items-center justify-center py-20 text-center">
+      <div className="h-16 w-16 rounded-2xl bg-muted/60 flex items-center justify-center mb-4">
+        <Globe className="h-8 w-8 text-muted-foreground/40 empty-state-icon" />
+      </div>
+      <p className="font-semibold text-muted-foreground">Data laporan tidak tersedia.</p>
+      <p className="text-sm text-muted-foreground/70 mt-1">Tidak dapat memuat data dashboard nasional.</p>
     </div>
   );
 

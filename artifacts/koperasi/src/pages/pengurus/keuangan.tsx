@@ -79,7 +79,7 @@ export default function PengurusKeuangan() {
   );
 
   if (!laporan) return (
-    <div className="flex flex-col items-center justify-center py-20 text-center">
+    <div className="page-animate flex flex-col items-center justify-center py-20 text-center">
       <div className="h-16 w-16 rounded-2xl bg-muted/60 flex items-center justify-center mb-4">
         <BarChart3 className="h-8 w-8 text-muted-foreground/40 empty-state-icon" />
       </div>

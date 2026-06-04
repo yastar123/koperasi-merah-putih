@@ -40,14 +40,25 @@ function ProdukKatalog({ unitUsahaId }: { unitUsahaId: number }) {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
       {produkList.map(produk => (
-        <div key={produk.id} className={`rounded-xl border p-3 transition-all duration-200 ${
-          produk.stok <= 0 ? "opacity-40 bg-muted/20" : "bg-muted/20 hover:bg-muted/40 hover:border-primary/20"
+        <div key={produk.id} className={`relative rounded-xl border p-3.5 transition-all duration-200 overflow-hidden ${
+          produk.stok <= 0
+            ? "opacity-50 bg-muted/10 cursor-not-allowed"
+            : "bg-card hover:shadow-md hover:-translate-y-0.5 hover:border-primary/25 cursor-pointer"
         }`}>
-          <div className="font-medium text-sm leading-tight line-clamp-2">{produk.nama}</div>
-          <div className="text-[11px] text-muted-foreground mt-0.5 capitalize">{produk.kategori}</div>
-          <div className="mt-2 flex items-center justify-between">
-            <span className="font-bold text-sm text-primary">{formatRupiah(produk.hargaJual)}</span>
-            <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${
+          {produk.stok <= 0 && (
+            <div className="absolute inset-0 flex items-center justify-center bg-background/40 rounded-xl">
+              <span className="text-[10px] font-bold text-red-600 bg-red-50 border border-red-200 px-2 py-0.5 rounded-full">
+                HABIS
+              </span>
+            </div>
+          )}
+          <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70 capitalize mb-1.5">
+            {produk.kategori}
+          </div>
+          <div className="font-semibold text-sm leading-tight line-clamp-2 mb-2.5">{produk.nama}</div>
+          <div className="flex items-end justify-between gap-1">
+            <span className="font-black text-sm text-primary leading-none">{formatRupiah(produk.hargaJual)}</span>
+            <Badge variant="outline" className={`text-[10px] px-1.5 py-0 shrink-0 ${
               produk.stok <= 0 ? "border-red-200 text-red-600 bg-red-50" :
               produk.stok <= 5 ? "border-yellow-200 text-yellow-700 bg-yellow-50" :
               "border-green-200 text-green-700 bg-green-50"

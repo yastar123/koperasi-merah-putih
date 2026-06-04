@@ -127,13 +127,13 @@ export default function OperatorStok() {
 
   if (!unitList || unitList.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-64 text-center gap-3">
-        <div className="h-14 w-14 rounded-2xl bg-muted/60 flex items-center justify-center">
-          <Store className="h-7 w-7 text-muted-foreground/40" />
+      <div className="page-animate flex flex-col items-center justify-center py-20 text-center gap-4">
+        <div className="h-16 w-16 rounded-2xl bg-muted/60 flex items-center justify-center">
+          <Store className="h-8 w-8 text-muted-foreground/40 empty-state-icon" />
         </div>
         <div>
-          <p className="font-semibold">Tidak ada unit usaha</p>
-          <p className="text-sm text-muted-foreground mt-1">Hubungi pengurus untuk menambahkan unit usaha terlebih dahulu.</p>
+          <p className="text-base font-bold">Tidak Ada Unit Usaha</p>
+          <p className="text-sm text-muted-foreground mt-1 max-w-xs">Hubungi pengurus koperasi untuk mendaftarkan unit usaha terlebih dahulu.</p>
         </div>
       </div>
     );
