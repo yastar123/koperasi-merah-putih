@@ -43,7 +43,7 @@ export default function PengurusPinjamanDetail() {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="page-animate space-y-6">
       <div className="flex items-center gap-4">
         <Link href="/pengurus/pinjaman" className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground">
           <ArrowLeft className="h-4 w-4" />

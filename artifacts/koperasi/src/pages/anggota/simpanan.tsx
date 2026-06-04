@@ -28,40 +28,58 @@ export default function AnggotaSimpanan() {
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-4 stagger-in">
-        <Card className="bg-primary text-primary-foreground md:col-span-1">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium opacity-80 text-primary-foreground flex items-center gap-2">
-              <Wallet className="h-4 w-4" /> Total Simpanan
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 stagger-in">
+        <Card className="card-lift overflow-hidden border-l-4 border-l-primary sm:col-span-2 lg:col-span-1">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 pt-4">
+            <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Total Simpanan
             </CardTitle>
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 shrink-0">
+              <Wallet className="h-4 w-4 text-primary" />
+            </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatRupiah(saldo?.totalSimpanan || 0)}</div>
+          <CardContent className="pb-4">
+            <div className="text-2xl font-black stat-value text-primary">{formatRupiah(saldo?.totalSimpanan || 0)}</div>
+            <p className="text-xs text-muted-foreground mt-1.5">Keseluruhan simpanan Anda</p>
           </CardContent>
         </Card>
-        
-        <Card>
-          <CardHeader className="pb-2">
-             <CardTitle className="text-sm font-medium text-muted-foreground">Simpanan Pokok</CardTitle>
+
+        <Card className="card-lift overflow-hidden border-l-4 border-l-blue-400">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 pt-4">
+            <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Simpanan Pokok</CardTitle>
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 shrink-0">
+              <Wallet className="h-4 w-4 text-blue-600" />
+            </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-xl font-bold">{formatRupiah(saldo?.simpananPokok || 0)}</div>
+          <CardContent className="pb-4">
+            <div className="text-xl font-black stat-value">{formatRupiah(saldo?.simpananPokok || 0)}</div>
+            <p className="text-xs text-muted-foreground mt-1.5">Dibayar saat pertama masuk</p>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="pb-2">
-             <CardTitle className="text-sm font-medium text-muted-foreground">Simpanan Wajib</CardTitle>
+
+        <Card className="card-lift overflow-hidden border-l-4 border-l-green-400">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 pt-4">
+            <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Simpanan Wajib</CardTitle>
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-green-50 shrink-0">
+              <Wallet className="h-4 w-4 text-green-600" />
+            </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-xl font-bold">{formatRupiah(saldo?.simpananWajib || 0)}</div>
+          <CardContent className="pb-4">
+            <div className="text-xl font-black stat-value">{formatRupiah(saldo?.simpananWajib || 0)}</div>
+            <p className="text-xs text-muted-foreground mt-1.5">Dibayar rutin tiap bulan</p>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="pb-2">
-             <CardTitle className="text-sm font-medium text-muted-foreground">Simpanan Sukarela</CardTitle>
+
+        <Card className="card-lift overflow-hidden border-l-4 border-l-purple-400">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 pt-4">
+            <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Simpanan Sukarela</CardTitle>
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-50 shrink-0">
+              <Wallet className="h-4 w-4 text-purple-600" />
+            </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-xl font-bold">{formatRupiah(saldo?.simpananSukarela || 0)}</div>
+          <CardContent className="pb-4">
+            <div className="text-xl font-black stat-value">{formatRupiah(saldo?.simpananSukarela || 0)}</div>
+            <p className="text-xs text-muted-foreground mt-1.5">Tabungan fleksibel Anda</p>
           </CardContent>
         </Card>
       </div>

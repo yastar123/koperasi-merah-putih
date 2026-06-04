@@ -79,7 +79,7 @@ export default function OperatorDashboard() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="page-animate space-y-6">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
           <h2 className="text-2xl font-black tracking-tight">
