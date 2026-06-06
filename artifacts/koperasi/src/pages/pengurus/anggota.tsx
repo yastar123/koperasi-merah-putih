@@ -15,6 +15,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/hooks/use-toast";
+import { ImageUpload } from "@/components/image-upload";
 
 const tambahAnggotaSchema = z.object({
   nama: z.string().min(2, "Nama minimal 2 karakter"),
@@ -24,6 +25,8 @@ const tambahAnggotaSchema = z.object({
   pekerjaan: z.string().optional(),
   tempatLahir: z.string().optional(),
   tanggalLahir: z.string().optional(),
+  fotoProfil: z.string().optional(),
+  fotoKtp: z.string().optional(),
 });
 
 type TambahAnggotaForm = z.infer<typeof tambahAnggotaSchema>;
@@ -33,6 +36,8 @@ export default function PengurusAnggota() {
   const { toast } = useToast();
   const [search, setSearch] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
+  const [fotoProfil, setFotoProfil] = useState<string | null>(null);
+  const [fotoKtp, setFotoKtp] = useState<string | null>(null);
 
   const { data: anggotaList, isLoading, refetch } = useListAnggota(
     { koperasiId: user?.koperasiId ?? undefined },
@@ -45,6 +50,8 @@ export default function PengurusAnggota() {
         toast({ title: "Anggota berhasil ditambahkan" });
         setOpenDialog(false);
         form.reset();
+        setFotoProfil(null);
+        setFotoKtp(null);
         refetch();
       },
       onError: () => {
@@ -63,6 +70,8 @@ export default function PengurusAnggota() {
       data: {
         ...data,
         koperasiId: user?.koperasiId!,
+        fotoProfil: fotoProfil ?? undefined,
+        fotoKtp: fotoKtp ?? undefined,
       }
     });
   };
@@ -223,6 +232,14 @@ export default function PengurusAnggota() {
                     <FormMessage />
                   </FormItem>
                 )} />
+                <FormItem>
+                  <FormLabel>Foto Profil</FormLabel>
+                  <ImageUpload value={fotoProfil} onChange={setFotoProfil} folder="anggota" label="Upload Foto Profil" />
+                </FormItem>
+                <FormItem>
+                  <FormLabel>Foto KTP</FormLabel>
+                  <ImageUpload value={fotoKtp} onChange={setFotoKtp} folder="anggota" label="Upload Foto KTP" />
+                </FormItem>
               </div>
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setOpenDialog(false)}>Batal</Button>

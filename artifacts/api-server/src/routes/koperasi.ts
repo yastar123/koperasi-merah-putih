@@ -53,7 +53,7 @@ router.get("/koperasi", async (req, res) => {
 
 // POST /koperasi
 router.post("/koperasi", async (req, res) => {
-  const { nama, noBadanHukum, desa, kecamatan, kabupaten, provinsi, alamat, telepon, email, tanggalBerdiri } = req.body;
+  const { nama, noBadanHukum, desa, kecamatan, kabupaten, provinsi, alamat, telepon, email, tanggalBerdiri, logoUrl } = req.body;
   if (!nama || !desa || !kecamatan || !kabupaten || !provinsi) {
     res.status(400).json({ error: "Field wajib tidak lengkap" });
     return;
@@ -63,6 +63,7 @@ router.post("/koperasi", async (req, res) => {
     nama, noBadanHukum: noBadanHukum || null, desa, kecamatan, kabupaten, provinsi,
     alamat: alamat || null, telepon: telepon || null, email: email || null,
     tanggalBerdiri: tanggalBerdiri || null, status: "pending",
+    logoUrl: logoUrl || null,
   }).returning();
 
   res.status(201).json(await enrichKoperasi(kop));
@@ -77,7 +78,7 @@ router.get("/koperasi/:id", async (req, res) => {
 
 // PATCH /koperasi/:id
 router.patch("/koperasi/:id", async (req, res) => {
-  const { nama, noBadanHukum, alamat, telepon, email, status } = req.body;
+  const { nama, noBadanHukum, alamat, telepon, email, status, logoUrl } = req.body;
   const updates: Partial<typeof koperasiTable.$inferInsert> = {};
   if (nama) updates.nama = nama;
   if (noBadanHukum !== undefined) updates.noBadanHukum = noBadanHukum;
@@ -85,6 +86,7 @@ router.patch("/koperasi/:id", async (req, res) => {
   if (telepon !== undefined) updates.telepon = telepon;
   if (email !== undefined) updates.email = email;
   if (status) updates.status = status;
+  if (logoUrl !== undefined) updates.logoUrl = logoUrl;
 
   const [kop] = await db.update(koperasiTable).set(updates).where(eq(koperasiTable.id, Number(req.params.id))).returning();
   if (!kop) { res.status(404).json({ error: "Koperasi tidak ditemukan" }); return; }

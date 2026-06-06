@@ -16,6 +16,7 @@ export const koperasiTable = pgTable("koperasi", {
   status: text("status").notNull().default("pending"),
   tanggalBerdiri: text("tanggal_berdiri"),
   catatan: text("catatan"),
+  logoUrl: text("logo_url"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

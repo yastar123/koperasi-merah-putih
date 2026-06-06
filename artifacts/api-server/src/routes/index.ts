@@ -13,6 +13,7 @@ import transaksiRouter from "./transaksi";
 import laporanRouter from "./laporan";
 import dashboardRouter from "./dashboard";
 import aktivitasRouter from "./aktivitas";
+import uploadRouter from "./upload";
 
 const router: IRouter = Router();
 
@@ -30,5 +31,6 @@ router.use(transaksiRouter);
 router.use(laporanRouter);
 router.use(dashboardRouter);
 router.use(aktivitasRouter);
+router.use(uploadRouter);
 
 export default router;

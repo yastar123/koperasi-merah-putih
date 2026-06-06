@@ -15,6 +15,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/hooks/use-toast";
+import { ImageUpload } from "@/components/image-upload";
 
 const produkSchema = z.object({
   nama: z.string().min(2, "Nama produk minimal 2 karakter"),
@@ -34,6 +35,8 @@ export default function OperatorStok() {
   const [editProduk, setEditProduk] = useState<any | null>(null);
   const [openCreate, setOpenCreate] = useState(false);
   const [selectedUnitId, setSelectedUnitId] = useState<number | null>(null);
+  const [createGambarUrl, setCreateGambarUrl] = useState<string | null>(null);
+  const [editGambarUrl, setEditGambarUrl] = useState<string | null>(null);
 
   const { data: unitList, isLoading: isLoadingUnits } = useListUnitUsaha(
     { koperasiId: user?.koperasiId ?? undefined },
@@ -72,6 +75,7 @@ export default function OperatorStok() {
         toast({ title: "Produk berhasil ditambahkan" });
         setOpenCreate(false);
         createForm.reset();
+        setCreateGambarUrl(null);
         refetch();
       },
       onError: () => {
@@ -91,6 +95,7 @@ export default function OperatorStok() {
 
   const openEditDialog = (produk: any) => {
     setEditProduk(produk);
+    setEditGambarUrl(produk.gambarUrl ?? null);
     editForm.reset({
       nama: produk.nama,
       kategori: produk.kategori,
@@ -102,11 +107,28 @@ export default function OperatorStok() {
   };
 
   const onEdit = (data: ProdukForm) => {
-    updateProduk.mutate({ id: editProduk.id, data: { nama: data.nama, kategori: data.kategori, hargaBeli: data.hargaBeli, hargaJual: data.hargaJual, stok: data.stok, satuan: data.satuan } });
+    updateProduk.mutate({
+      id: editProduk.id,
+      data: {
+        nama: data.nama,
+        kategori: data.kategori,
+        hargaBeli: data.hargaBeli,
+        hargaJual: data.hargaJual,
+        stok: data.stok,
+        satuan: data.satuan,
+        gambarUrl: editGambarUrl ?? undefined,
+      },
+    });
   };
 
   const onCreate = (data: ProdukForm) => {
-    createProduk.mutate({ data: { ...data, unitUsahaId } });
+    createProduk.mutate({
+      data: {
+        ...data,
+        unitUsahaId,
+        gambarUrl: createGambarUrl ?? undefined,
+      },
+    });
   };
 
   const filtered = produkList?.filter(p =>
@@ -303,6 +325,10 @@ export default function OperatorStok() {
                     <FormMessage />
                   </FormItem>
                 )} />
+                <FormItem className="col-span-2">
+                  <FormLabel>Gambar Produk</FormLabel>
+                  <ImageUpload value={editGambarUrl} onChange={setEditGambarUrl} folder="produk" label="Upload Gambar Produk" />
+                </FormItem>
               </div>
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setEditProduk(null)}>Batal</Button>
@@ -365,6 +391,10 @@ export default function OperatorStok() {
                     <FormMessage />
                   </FormItem>
                 )} />
+                <FormItem className="col-span-2">
+                  <FormLabel>Gambar Produk</FormLabel>
+                  <ImageUpload value={createGambarUrl} onChange={setCreateGambarUrl} folder="produk" label="Upload Gambar Produk" />
+                </FormItem>
               </div>
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setOpenCreate(false)}>Batal</Button>

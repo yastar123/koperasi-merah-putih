@@ -41,7 +41,7 @@ router.get("/anggota", async (req, res) => {
 
 // POST /anggota
 router.post("/anggota", async (req, res) => {
-  const { nama, nik, tempatLahir, tanggalLahir, alamat, telepon, pekerjaan, koperasiId, userId } = req.body;
+  const { nama, nik, tempatLahir, tanggalLahir, alamat, telepon, pekerjaan, koperasiId, userId, fotoProfil, fotoKtp } = req.body;
   if (!nama || !nik || !koperasiId) {
     res.status(400).json({ error: "Field wajib tidak lengkap" });
     return;
@@ -55,6 +55,7 @@ router.post("/anggota", async (req, res) => {
     tempatLahir: tempatLahir || null, tanggalLahir: tanggalLahir || null,
     alamat: alamat || null, telepon: telepon || null, pekerjaan: pekerjaan || null,
     koperasiId: Number(koperasiId), userId: userId || null, status: "pending",
+    fotoProfil: fotoProfil || null, fotoKtp: fotoKtp || null,
   }).returning();
 
   res.status(201).json(await enrichAnggota(a));
@@ -69,13 +70,15 @@ router.get("/anggota/:id", async (req, res) => {
 
 // PATCH /anggota/:id
 router.patch("/anggota/:id", async (req, res) => {
-  const { nama, alamat, telepon, pekerjaan, status } = req.body;
+  const { nama, alamat, telepon, pekerjaan, status, fotoProfil, fotoKtp } = req.body;
   const updates: Partial<typeof anggotaTable.$inferInsert> = {};
   if (nama) updates.nama = nama;
   if (alamat !== undefined) updates.alamat = alamat;
   if (telepon !== undefined) updates.telepon = telepon;
   if (pekerjaan !== undefined) updates.pekerjaan = pekerjaan;
   if (status) updates.status = status;
+  if (fotoProfil !== undefined) updates.fotoProfil = fotoProfil;
+  if (fotoKtp !== undefined) updates.fotoKtp = fotoKtp;
 
   const [a] = await db.update(anggotaTable).set(updates).where(eq(anggotaTable.id, Number(req.params.id))).returning();
   if (!a) { res.status(404).json({ error: "Anggota tidak ditemukan" }); return; }

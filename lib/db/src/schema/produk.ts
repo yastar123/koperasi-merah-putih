@@ -11,6 +11,7 @@ export const produkTable = pgTable("produk", {
   hargaJual: numeric("harga_jual", { precision: 15, scale: 2 }).notNull(),
   stok: numeric("stok", { precision: 10, scale: 2 }).notNull().default("0"),
   satuan: text("satuan").notNull(),
+  gambarUrl: text("gambar_url"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

@@ -1036,6 +1036,8 @@ components:
           type: integer
         totalAset:
           type: number
+        logoUrl:
+          type: ["string", "null"]
         createdAt:
           type: string
 
@@ -1063,6 +1065,8 @@ components:
           type: string
         tanggalBerdiri:
           type: string
+        logoUrl:
+          type: string
 
     KoperasiUpdate:
       type: object
@@ -1078,6 +1082,8 @@ components:
         email:
           type: string
         status:
+          type: string
+        logoUrl:
           type: string
 
     VerifikasiInput:
@@ -1123,6 +1129,10 @@ components:
           type: number
         totalPinjaman:
           type: number
+        fotoProfil:
+          type: ["string", "null"]
+        fotoKtp:
+          type: ["string", "null"]
         createdAt:
           type: string
 
@@ -1148,6 +1158,10 @@ components:
           type: integer
         userId:
           type: integer
+        fotoProfil:
+          type: string
+        fotoKtp:
+          type: string
 
     AnggotaUpdate:
       type: object
@@ -1161,6 +1175,10 @@ components:
         pekerjaan:
           type: string
         status:
+          type: string
+        fotoProfil:
+          type: string
+        fotoKtp:
           type: string
 
     # ─── SIMPANAN ─────────────────────────────────────────────────────────────
@@ -1379,6 +1397,8 @@ components:
           type: number
         satuan:
           type: string
+        gambarUrl:
+          type: ["string", "null"]
         createdAt:
           type: string
 
@@ -1400,6 +1420,8 @@ components:
           type: number
         satuan:
           type: string
+        gambarUrl:
+          type: string
 
     ProdukUpdate:
       type: object
@@ -1415,6 +1437,8 @@ components:
         stok:
           type: number
         satuan:
+          type: string
+        gambarUrl:
           type: string
 
     # ─── TRANSAKSI ────────────────────────────────────────────────────────────

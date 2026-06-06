@@ -15,6 +15,8 @@ export const anggotaTable = pgTable("anggota", {
   koperasiId: integer("koperasi_id").notNull(),
   userId: integer("user_id"),
   status: text("status").notNull().default("pending"),
+  fotoProfil: text("foto_profil"),
+  fotoKtp: text("foto_ktp"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

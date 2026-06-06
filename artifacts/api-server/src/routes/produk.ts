@@ -30,7 +30,7 @@ router.get("/produk", async (req, res) => {
 
 // POST /produk
 router.post("/produk", async (req, res) => {
-  const { unitUsahaId, nama, kategori, hargaBeli, hargaJual, stok, satuan } = req.body;
+  const { unitUsahaId, nama, kategori, hargaBeli, hargaJual, stok, satuan, gambarUrl } = req.body;
   if (!unitUsahaId || !nama || !kategori || hargaBeli === undefined || hargaJual === undefined) {
     res.status(400).json({ error: "Field wajib tidak lengkap" });
     return;
@@ -43,6 +43,7 @@ router.post("/produk", async (req, res) => {
     hargaJual: String(hargaJual),
     stok: String(stok ?? 0),
     satuan: satuan || "pcs",
+    gambarUrl: gambarUrl || null,
   }).returning();
 
   res.status(201).json(formatProduk(p));
@@ -50,7 +51,7 @@ router.post("/produk", async (req, res) => {
 
 // PATCH /produk/:id
 router.patch("/produk/:id", async (req, res) => {
-  const { nama, kategori, hargaBeli, hargaJual, stok, satuan } = req.body;
+  const { nama, kategori, hargaBeli, hargaJual, stok, satuan, gambarUrl } = req.body;
   const updates: Partial<typeof produkTable.$inferInsert> = {};
   if (nama) updates.nama = nama;
   if (kategori) updates.kategori = kategori;
@@ -58,6 +59,7 @@ router.patch("/produk/:id", async (req, res) => {
   if (hargaJual !== undefined) updates.hargaJual = String(hargaJual);
   if (stok !== undefined) updates.stok = String(stok);
   if (satuan) updates.satuan = satuan;
+  if (gambarUrl !== undefined) updates.gambarUrl = gambarUrl;
 
   const [p] = await db.update(produkTable).set(updates).where(eq(produkTable.id, Number(req.params.id))).returning();
   if (!p) { res.status(404).json({ error: "Produk tidak ditemukan" }); return; }
