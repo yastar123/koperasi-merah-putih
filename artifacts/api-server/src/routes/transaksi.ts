@@ -23,14 +23,42 @@ router.get("/transaksi", async (req, res) => {
     ? await db.select().from(transaksiTable).where(and(...filters))
     : await db.select().from(transaksiTable);
 
-  // Enrich with anggota name
+  // Collect all unique produkIds for batch lookup
+  const allProdukIds = new Set<number>();
+  for (const t of list) {
+    const items = (t.items as any[]) ?? [];
+    for (const item of items) {
+      if (item.produkId) allProdukIds.add(item.produkId);
+    }
+  }
+  const produkMap = new Map<number, { nama: string; hargaJual: string }>();
+  if (allProdukIds.size > 0) {
+    const produkList = await db.select({ id: produkTable.id, nama: produkTable.nama, hargaJual: produkTable.hargaJual })
+      .from(produkTable)
+      .where(sql`id = ANY(${Array.from(allProdukIds)})`);
+    for (const p of produkList) produkMap.set(p.id, p);
+  }
+
+  // Enrich with anggota name and ensure items have namaProduk/subtotal
   const enriched = await Promise.all(list.map(async t => {
     let namaAnggota: string | null = null;
     if (t.anggotaId) {
       const [a] = await db.select({ nama: anggotaTable.nama }).from(anggotaTable).where(eq(anggotaTable.id, t.anggotaId)).limit(1);
       namaAnggota = a?.nama ?? null;
     }
-    return { ...formatTransaksi(t), namaAnggota };
+    const rawItems = (t.items as any[]) ?? [];
+    const enrichedItems = rawItems.map(item => {
+      if (item.namaProduk && item.subtotal != null) return item;
+      const produk = produkMap.get(item.produkId);
+      const hargaSatuan = item.hargaSatuan ?? (produk ? Number(produk.hargaJual) : 0);
+      return {
+        ...item,
+        namaProduk: item.namaProduk ?? produk?.nama ?? `Produk #${item.produkId}`,
+        hargaSatuan,
+        subtotal: item.subtotal ?? hargaSatuan * (item.qty ?? 1),
+      };
+    });
+    return { ...formatTransaksi(t), items: enrichedItems, namaAnggota };
   }));
 
   res.json(enriched);

@@ -101,7 +101,7 @@ export default function AnggotaDashboard() {
                   </CardTitle>
                 </div>
                 <Badge variant="outline" className={getStatusBadgeVariant(pinjamanAktif.status)}>
-                  {pinjamanAktif.status}
+                  {pinjamanAktif.status === "aktif" ? "Aktif" : pinjamanAktif.status === "macet" ? "Macet" : "Berjalan"}
                 </Badge>
               </div>
             </CardHeader>

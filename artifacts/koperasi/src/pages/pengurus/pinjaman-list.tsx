@@ -18,7 +18,7 @@ import {
 
 const STATUS_LABELS: Record<string, string> = {
   pending: "Menunggu",
-  disetujui: "Disetujui",
+  aktif: "Aktif",
   ditolak: "Ditolak",
   lunas: "Lunas",
   macet: "Macet",
@@ -105,7 +105,7 @@ export default function PengurusPinjamanList() {
             <SelectContent>
               <SelectItem value="all">Semua Status</SelectItem>
               <SelectItem value="pending">Menunggu</SelectItem>
-              <SelectItem value="disetujui">Disetujui</SelectItem>
+              <SelectItem value="aktif">Aktif</SelectItem>
               <SelectItem value="ditolak">Ditolak</SelectItem>
               <SelectItem value="lunas">Lunas</SelectItem>
               <SelectItem value="macet">Macet</SelectItem>

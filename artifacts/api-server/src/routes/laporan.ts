@@ -16,11 +16,13 @@ router.get("/laporan/keuangan", async (req, res) => {
     : await db.select({ id: anggotaTable.id }).from(anggotaTable);
   const angIds = angQuery.map(a => a.id);
 
-  // Total simpanan
-  let totalSimpananQuery = db.select({ total: sql<number>`coalesce(sum(jumlah), 0)` })
+  // Total simpanan (filtered by koperasiId via angIds)
+  const simpananWhere = angIds.length
+    ? sql`jenis != 'penarikan' AND anggota_id = ANY(${angIds})`
+    : sql`jenis != 'penarikan'`;
+  const [simpananRow] = await db.select({ total: sql<number>`coalesce(sum(jumlah), 0)` })
     .from(simpananTable)
-    .where(sql`jenis != 'penarikan'`);
-  const [simpananRow] = await totalSimpananQuery;
+    .where(simpananWhere);
   const totalSimpanan = Number(simpananRow?.total ?? 0);
 
   // Total pinjaman aktif

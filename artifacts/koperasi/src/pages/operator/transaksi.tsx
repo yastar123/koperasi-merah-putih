@@ -216,11 +216,11 @@ export default function OperatorTransaksi() {
                               <Package className="h-3.5 w-3.5 text-primary" />
                             </div>
                             <div className="min-w-0">
-                              <div className="font-medium truncate">{item.namaProduk}</div>
-                              <div className="text-xs text-muted-foreground">{item.qty} × {formatRupiah(item.hargaSatuan)}</div>
+                              <div className="font-medium truncate">{item.namaProduk ?? `Produk #${item.produkId}`}</div>
+                              <div className="text-xs text-muted-foreground">{item.qty} × {formatRupiah(item.hargaSatuan ?? 0)}</div>
                             </div>
                           </div>
-                          <div className="font-semibold shrink-0 ml-3">{formatRupiah(item.subtotal)}</div>
+                          <div className="font-semibold shrink-0 ml-3">{formatRupiah(item.subtotal ?? (item.qty ?? 0) * (item.hargaSatuan ?? 0))}</div>
                         </div>
                       ))}
                     </div>

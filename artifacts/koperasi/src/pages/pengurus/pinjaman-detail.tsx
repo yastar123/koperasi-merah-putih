@@ -54,7 +54,12 @@ export default function PengurusPinjamanDetail() {
         </div>
         <div className="ml-auto">
           <Badge variant="outline" className={getStatusBadgeVariant(pinjaman.status)}>
-            {pinjaman.status.toUpperCase()}
+            {pinjaman.status === "aktif" ? "Aktif"
+              : pinjaman.status === "pending" ? "Menunggu"
+              : pinjaman.status === "ditolak" ? "Ditolak"
+              : pinjaman.status === "lunas" ? "Lunas"
+              : pinjaman.status === "macet" ? "Macet"
+              : pinjaman.status.toUpperCase()}
           </Badge>
         </div>
       </div>

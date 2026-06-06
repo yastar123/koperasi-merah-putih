@@ -99,17 +99,21 @@ router.post("/pinjaman/:id/setujui", async (req, res) => {
   const jatuhTempo = new Date(today);
   jatuhTempo.setMonth(jatuhTempo.getMonth() + existing.tenorBulan);
 
+  // "disetujui" from UI means the loan is approved and now active
+  const dbStatus = status === "disetujui" ? "aktif" : status;
+  const isApproved = status === "disetujui";
+
   const [p] = await db.update(pinjamanTable).set({
-    status,
+    status: dbStatus,
     bungaPersen: String(bunga),
     angsuranPerBulan: String(angsuran),
     catatanPengurus: catatanPengurus || null,
-    tanggalDisetujui: status === "disetujui" ? today.toISOString().split("T")[0] : null,
-    tanggalJatuhTempo: status === "disetujui" ? jatuhTempo.toISOString().split("T")[0] : null,
+    tanggalDisetujui: isApproved ? today.toISOString().split("T")[0] : null,
+    tanggalJatuhTempo: isApproved ? jatuhTempo.toISOString().split("T")[0] : null,
   }).where(eq(pinjamanTable.id, pinjamanId)).returning();
 
   // Generate jadwal angsuran
-  if (status === "disetujui") {
+  if (isApproved) {
     const jadwal = [];
     for (let i = 1; i <= existing.tenorBulan; i++) {
       const tgl = new Date(today);
