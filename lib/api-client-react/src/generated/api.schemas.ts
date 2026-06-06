@@ -456,6 +456,12 @@ export interface RincianUnit {
   labaUnit: number;
 }
 
+export interface MonthlyKeuangan {
+  bulan: number;
+  pemasukan: number;
+  pengeluaran: number;
+}
+
 export interface LaporanKeuangan {
   koperasiId: number;
   tahun: number;
@@ -468,6 +474,7 @@ export interface LaporanKeuangan {
   totalPinjaman: number;
   totalAset: number;
   rincianUnit?: RincianUnit[];
+  monthlyData?: MonthlyKeuangan[];
 }
 
 export interface ShuAnggota {

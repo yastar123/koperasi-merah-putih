@@ -801,6 +801,11 @@ export const GetLaporanKeuanganResponse = zod.object({
   "namaUnit": zod.string(),
   "omzet": zod.number(),
   "labaUnit": zod.number()
+})).optional(),
+  "monthlyData": zod.array(zod.object({
+  "bulan": zod.number(),
+  "pemasukan": zod.number(),
+  "pengeluaran": zod.number()
 })).optional()
 })
 

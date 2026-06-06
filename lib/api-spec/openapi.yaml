@@ -1557,6 +1557,21 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/RincianUnit"
+        monthlyData:
+          type: array
+          items:
+            $ref: "#/components/schemas/MonthlyKeuangan"
+
+    MonthlyKeuangan:
+      type: object
+      required: [bulan, pemasukan, pengeluaran]
+      properties:
+        bulan:
+          type: integer
+        pemasukan:
+          type: number
+        pengeluaran:
+          type: number
 
     RincianUnit:
       type: object

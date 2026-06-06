@@ -5,6 +5,7 @@
  * Sistem Koperasi Merah Putih API
  * OpenAPI spec version: 0.1.0
  */
+import type { MonthlyKeuangan } from './monthlyKeuangan';
 import type { RincianUnit } from './rincianUnit';
 
 export interface LaporanKeuangan {
@@ -19,4 +20,5 @@ export interface LaporanKeuangan {
   totalPinjaman: number;
   totalAset: number;
   rincianUnit?: RincianUnit[];
+  monthlyData?: MonthlyKeuangan[];
 }

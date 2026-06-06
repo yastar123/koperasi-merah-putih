@@ -1,18 +1,18 @@
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
-import { useGetKoperasi } from "@workspace/api-client-react";
+import { useGetKoperasi, useGetDashboardStats } from "@workspace/api-client-react";
 import {
   Sidebar, SidebarContent, SidebarFooter, SidebarGroup,
   SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu,
   SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger
 } from "@/components/ui/sidebar";
-import { LayoutDashboard, Users, Wallet, CreditCard, Store, PieChart, Calculator, LogOut } from "lucide-react";
+import { LayoutDashboard, Users, Wallet, CreditCard, Store, PieChart, Calculator, LogOut, Bell } from "lucide-react";
 
 const NAV_ITEMS = [
   { href: "/pengurus/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/pengurus/anggota", label: "Anggota", icon: Users },
   { href: "/pengurus/simpanan", label: "Simpanan", icon: Wallet },
-  { href: "/pengurus/pinjaman", label: "Pinjaman", icon: CreditCard },
+  { href: "/pengurus/pinjaman", label: "Pinjaman", icon: CreditCard, badgeKey: "pinjaman" },
   { href: "/pengurus/unit-usaha", label: "Unit Usaha", icon: Store },
   { href: "/pengurus/keuangan", label: "Keuangan", icon: PieChart },
   { href: "/pengurus/shu", label: "Sisa Hasil Usaha", icon: Calculator },
@@ -49,6 +49,13 @@ export function PengurusLayout({ children }: { children: React.ReactNode }) {
     { query: { queryKey: [], enabled: !!user?.koperasiId } }
   );
 
+  const { data: stats } = useGetDashboardStats(
+    { koperasiId: user?.koperasiId ?? undefined },
+    { query: { queryKey: [], enabled: !!user?.koperasiId } }
+  );
+
+  const pendingPinjaman = stats?.pengajuanPending ?? 0;
+
   const pageTitle = Object.entries(PAGE_TITLES).find(([path]) =>
     location.startsWith(path)
   )?.[1] ?? "Pengurus Koperasi";
@@ -79,14 +86,20 @@ export function PengurusLayout({ children }: { children: React.ReactNode }) {
               </SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
+                  {NAV_ITEMS.map(({ href, label, icon: Icon, badgeKey }) => {
                     const isActive = href === "/pengurus/dashboard" ? location === href : location.startsWith(href);
+                    const showBadge = badgeKey === "pinjaman" && pendingPinjaman > 0;
                     return (
                       <SidebarMenuItem key={href}>
                         <SidebarMenuButton asChild isActive={isActive}>
                           <Link href={href}>
                             <Icon className="h-4 w-4" />
                             <span>{label}</span>
+                            {showBadge && (
+                              <span className="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary text-primary-foreground text-[10px] font-bold px-1 leading-none">
+                                {pendingPinjaman > 99 ? "99+" : pendingPinjaman}
+                              </span>
+                            )}
                           </Link>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
@@ -117,6 +130,12 @@ export function PengurusLayout({ children }: { children: React.ReactNode }) {
             <SidebarTrigger className="shrink-0" />
             <div className="h-4 w-px bg-border/70 shrink-0" />
             <h1 className="text-sm font-semibold truncate flex-1">{pageTitle}</h1>
+            {pendingPinjaman > 0 && (
+              <Link href="/pengurus/pinjaman" className="hidden sm:flex items-center gap-1.5 text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200 hover:bg-amber-100 transition-colors px-2.5 py-1.5 rounded-lg shrink-0">
+                <Bell className="h-3 w-3" />
+                {pendingPinjaman} pengajuan menunggu
+              </Link>
+            )}
             <TodayBadge />
           </header>
           <main className="flex-1 overflow-auto p-4 md:p-6 page-animate">

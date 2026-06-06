@@ -44,6 +44,7 @@ export * from './listTransaksiParams';
 export * from './listUnitUsahaParams';
 export * from './listUsersParams';
 export * from './loginInput';
+export * from './monthlyKeuangan';
 export * from './pinjaman';
 export * from './pinjamanInput';
 export * from './pinjamanStatus';

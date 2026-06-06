@@ -1,15 +1,16 @@
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
+import { useGetDashboardNasional } from "@workspace/api-client-react";
 import {
   Sidebar, SidebarContent, SidebarFooter, SidebarGroup,
   SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu,
   SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger
 } from "@/components/ui/sidebar";
-import { LayoutDashboard, Building2, Users, FileBarChart, LogOut, Globe } from "lucide-react";
+import { LayoutDashboard, Building2, Users, FileBarChart, LogOut, Globe, Clock } from "lucide-react";
 
 const NAV_ITEMS = [
   { href: "/super-admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/super-admin/koperasi", label: "Data Koperasi", icon: Building2 },
+  { href: "/super-admin/koperasi", label: "Data Koperasi", icon: Building2, badgeKey: "koperasi" },
   { href: "/super-admin/pengguna", label: "Pengguna", icon: Users },
   { href: "/super-admin/laporan", label: "Laporan Nasional", icon: FileBarChart },
 ];
@@ -36,6 +37,9 @@ function TodayBadge() {
 export function SuperAdminLayout({ children }: { children: React.ReactNode }) {
   const { logout, user } = useAuth();
   const [location] = useLocation();
+
+  const { data: nasional } = useGetDashboardNasional();
+  const pendingKoperasi = nasional?.koperasiPending ?? 0;
 
   const pageTitle = Object.entries(PAGE_TITLES).find(([path]) =>
     path === "/super-admin/dashboard" ? location === path : location.startsWith(path)
@@ -66,14 +70,20 @@ export function SuperAdminLayout({ children }: { children: React.ReactNode }) {
               </SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
+                  {NAV_ITEMS.map(({ href, label, icon: Icon, badgeKey }) => {
                     const isActive = href === "/super-admin/dashboard" ? location === href : location.startsWith(href);
+                    const showBadge = badgeKey === "koperasi" && pendingKoperasi > 0;
                     return (
                       <SidebarMenuItem key={href}>
                         <SidebarMenuButton asChild isActive={isActive}>
                           <Link href={href}>
                             <Icon className="h-4 w-4" />
                             <span>{label}</span>
+                            {showBadge && (
+                              <span className="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-amber-500 text-white text-[10px] font-bold px-1 leading-none">
+                                {pendingKoperasi > 99 ? "99+" : pendingKoperasi}
+                              </span>
+                            )}
                           </Link>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
@@ -109,6 +119,12 @@ export function SuperAdminLayout({ children }: { children: React.ReactNode }) {
             <SidebarTrigger className="shrink-0" />
             <div className="h-4 w-px bg-border/70 shrink-0" />
             <h1 className="text-sm font-semibold truncate flex-1">{pageTitle}</h1>
+            {pendingKoperasi > 0 && (
+              <Link href="/super-admin/koperasi" className="hidden sm:flex items-center gap-1.5 text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200 hover:bg-amber-100 transition-colors px-2.5 py-1.5 rounded-lg shrink-0">
+                <Clock className="h-3 w-3" />
+                {pendingKoperasi} koperasi menunggu
+              </Link>
+            )}
             <TodayBadge />
           </header>
           <main className="flex-1 overflow-auto p-4 md:p-6 page-animate">
