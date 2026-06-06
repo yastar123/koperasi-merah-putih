@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db, simpananTable, pinjamanTable, transaksiTable, anggotaTable, unitUsahaTable } from "@workspace/db";
-import { eq, and, sql } from "drizzle-orm";
+import { eq, and, sql, gte, lte } from "drizzle-orm";
 
 const router = Router();
 
@@ -26,7 +26,7 @@ router.get("/laporan/keuangan", async (req, res) => {
   // Total pinjaman aktif
   const [pinjamanRow] = await db.select({ total: sql<number>`coalesce(sum(jumlah_pinjaman), 0)` })
     .from(pinjamanTable)
-    .where(sql`status in ('disetujui', 'macet')`);
+    .where(sql`status in ('aktif', 'macet')`);
   const totalPinjaman = Number(pinjamanRow?.total ?? 0);
 
   // Unit omzet
@@ -44,6 +44,35 @@ router.get("/laporan/keuangan", async (req, res) => {
   const totalOmzet = rincianUnit.reduce((s, u) => s + u.omzet, 0);
   const totalLaba = rincianUnit.reduce((s, u) => s + u.labaUnit, 0);
 
+  // Monthly trend data: simpanan + transaksi per bulan for the given year
+  const monthlyData = await Promise.all(
+    Array.from({ length: 12 }, (_, i) => i + 1).map(async (m) => {
+      const monthStr = String(m).padStart(2, "0");
+      const prefix = `${yr}-${monthStr}`;
+
+      const [simpRow] = await db
+        .select({ total: sql<number>`coalesce(sum(jumlah), 0)` })
+        .from(simpananTable)
+        .where(sql`jenis != 'penarikan' AND tanggal LIKE ${prefix + "%"}`);
+
+      const [txRow] = await db
+        .select({ total: sql<number>`coalesce(sum(total_harga), 0)` })
+        .from(transaksiTable)
+        .where(sql`tanggal LIKE ${prefix + "%"}`);
+
+      const [pinRow] = await db
+        .select({ total: sql<number>`coalesce(sum(jumlah_pinjaman), 0)` })
+        .from(pinjamanTable)
+        .where(sql`status in ('aktif', 'macet') AND tanggal_pengajuan LIKE ${prefix + "%"}`);
+
+      return {
+        bulan: m,
+        pemasukan: Number(simpRow?.total ?? 0) + Number(txRow?.total ?? 0),
+        pengeluaran: Number(pinRow?.total ?? 0),
+      };
+    })
+  );
+
   res.json({
     koperasiId: kopId ?? 0,
     tahun: yr,
@@ -55,6 +84,7 @@ router.get("/laporan/keuangan", async (req, res) => {
     totalPinjaman,
     totalAset: totalSimpanan + totalOmzet,
     rincianUnit,
+    monthlyData,
   });
 });
 

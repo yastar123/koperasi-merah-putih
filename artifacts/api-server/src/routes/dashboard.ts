@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db, koperasiTable, anggotaTable, simpananTable, pinjamanTable, transaksiTable, angsuranTable } from "@workspace/db";
-import { eq, and, sql, gt } from "drizzle-orm";
+import { eq, and, sql, inArray } from "drizzle-orm";
 
 const router = Router();
 
@@ -27,15 +27,15 @@ router.get("/dashboard/stats", async (req, res) => {
     : null;
 
   const simpananWhere = angIds?.length
-    ? sql`anggota_id = ANY(${angIds}) AND jenis != 'penarikan'`
+    ? and(inArray(simpananTable.anggotaId, angIds), sql`jenis != 'penarikan'`)
     : sql`jenis != 'penarikan'`;
   const [simpRow] = await db.select({ total: sql<number>`coalesce(sum(jumlah), 0)` }).from(simpananTable).where(simpananWhere);
   const totalSimpanan = Number(simpRow?.total ?? 0);
 
   // Pinjaman
   const pinjamanWhere = angIds?.length
-    ? sql`anggota_id = ANY(${angIds}) AND status in ('disetujui', 'macet')`
-    : sql`status in ('disetujui', 'macet')`;
+    ? and(inArray(pinjamanTable.anggotaId, angIds), sql`status in ('aktif', 'macet')`)
+    : sql`status in ('aktif', 'macet')`;
   const [pinRow] = await db.select({ total: sql<number>`coalesce(sum(jumlah_pinjaman), 0)`, c: sql<number>`count(*)` }).from(pinjamanTable).where(pinjamanWhere);
   const totalPinjaman = Number(pinRow?.total ?? 0);
   const pinjamanAktif = Number(pinRow?.total ?? 0);
@@ -56,8 +56,8 @@ router.get("/dashboard/stats", async (req, res) => {
 
   // Pengajuan pending
   const pendingWhere = angIds?.length
-    ? sql`anggota_id = ANY(${angIds}) AND status = 'pending'`
-    : sql`status = 'pending'`;
+    ? and(inArray(pinjamanTable.anggotaId, angIds), eq(pinjamanTable.status, "pending"))
+    : eq(pinjamanTable.status, "pending");
   const [pendingRow] = await db.select({ c: sql<number>`count(*)` }).from(pinjamanTable).where(pendingWhere);
 
   res.json({

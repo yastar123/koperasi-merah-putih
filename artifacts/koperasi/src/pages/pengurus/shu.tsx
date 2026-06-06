@@ -7,7 +7,7 @@ import { Calculator, TrendingUp, Users, ShoppingBag, Award } from "lucide-react"
 
 export default function PengurusSHU() {
   const { user } = useAuth();
-  const currentYear = new Date().getFullYear() - 1;
+  const currentYear = new Date().getFullYear();
 
   const { data: shu, isLoading } = useGetLaporanShu(
     { koperasiId: user?.koperasiId ?? undefined, tahun: currentYear },

@@ -51,15 +51,16 @@ export default function PengurusKeuangan() {
 
   const trendData = useMemo(() => {
     if (!laporan) return [];
-    const seed = (laporan.totalPemasukan + laporan.totalPengeluaran) || 1;
-    return MONTH_LABELS.map((bulan, i) => {
-      const factor = 0.7 + ((seed * (i + 1) * 9301 + 49297) % 100) / 333;
-      return {
-        bulan,
-        pemasukan: Math.round((laporan.totalPemasukan / 12) * Math.min(factor, 1.3)),
-        pengeluaran: Math.round((laporan.totalPengeluaran / 12) * Math.min(factor * 0.9, 1.3)),
-      };
-    });
+    const monthly = (laporan as any).monthlyData as { bulan: number; pemasukan: number; pengeluaran: number }[] | undefined;
+    if (monthly?.length) {
+      return monthly.map(m => ({ bulan: MONTH_LABELS[m.bulan - 1], pemasukan: m.pemasukan, pengeluaran: m.pengeluaran }));
+    }
+    // Fallback: distribute evenly
+    return MONTH_LABELS.map(bulan => ({
+      bulan,
+      pemasukan: Math.round(laporan.totalPemasukan / 12),
+      pengeluaran: Math.round(laporan.totalPengeluaran / 12),
+    }));
   }, [laporan]);
 
   if (isLoading) return (
@@ -214,7 +215,7 @@ export default function PengurusKeuangan() {
               </div>
               <div>
                 <CardTitle className="text-base font-semibold">Tren Pemasukan & Pengeluaran</CardTitle>
-                <p className="text-xs text-muted-foreground mt-0.5">Estimasi bulanan {currentYear}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Data bulanan {currentYear}</p>
               </div>
             </div>
           </CardHeader>

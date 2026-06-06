@@ -55,7 +55,7 @@ export default function PengawasAudit() {
         </CardHeader>
         <CardContent className="flex items-end gap-4 pb-4">
           <div className={`text-4xl font-black stat-value ${skorWarna}`}>{audit.skorKesehatan}<span className="text-xl text-muted-foreground font-medium">/100</span></div>
-          <Badge className={audit.statusKeuangan === 'sehat' ? 'bg-green-600 hover:bg-green-600' : 'bg-red-600 hover:bg-red-600'}>
+          <Badge className={audit.statusKeuangan?.toLowerCase() === 'sehat' ? 'bg-green-600 hover:bg-green-600' : audit.statusKeuangan?.toLowerCase() === 'cukup sehat' ? 'bg-yellow-500 hover:bg-yellow-500' : 'bg-red-600 hover:bg-red-600'}>
             {audit.statusKeuangan?.toUpperCase()}
           </Badge>
         </CardContent>
