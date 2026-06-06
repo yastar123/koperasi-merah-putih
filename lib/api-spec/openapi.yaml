@@ -676,6 +676,26 @@ paths:
                 $ref: "#/components/schemas/Produk"
 
   /produk/{id}:
+    delete:
+      operationId: deleteProduk
+      tags: [produk]
+      summary: Hapus produk
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Produk dihapus
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
     patch:
       operationId: updateProduk
       tags: [produk]
@@ -1262,7 +1282,7 @@ components:
           type: ["string", "null"]
         status:
           type: string
-          enum: [pending, disetujui, ditolak, lunas, macet]
+          enum: [pending, aktif, disetujui, ditolak, lunas, macet]
         tanggalPengajuan:
           type: string
         tanggalDisetujui:

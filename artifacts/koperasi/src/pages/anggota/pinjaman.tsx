@@ -134,6 +134,7 @@ export default function AnggotaPinjaman() {
                       <TableCell>
                         <Badge variant="outline" className={getStatusBadgeVariant(pinjaman.status)}>
                           {pinjaman.status === "pending" ? "Menunggu"
+                            : pinjaman.status === "aktif" ? "Aktif"
                             : pinjaman.status === "disetujui" ? "Disetujui"
                             : pinjaman.status === "ditolak" ? "Ditolak"
                             : pinjaman.status === "lunas" ? "Lunas"

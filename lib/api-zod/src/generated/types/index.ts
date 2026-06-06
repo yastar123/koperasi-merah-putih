@@ -18,6 +18,7 @@ export * from './authResponse';
 export * from './bayarAngsuranInput';
 export * from './dashboardNasional';
 export * from './dashboardStats';
+export * from './deleteProduk200';
 export * from './getAktivitasTerbaruParams';
 export * from './getDashboardStatsParams';
 export * from './getLaporanAuditParams';

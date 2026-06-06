@@ -66,4 +66,10 @@ router.patch("/produk/:id", async (req, res) => {
   res.json(formatProduk(p));
 });
 
+// DELETE /produk/:id
+router.delete("/produk/:id", async (req, res) => {
+  await db.delete(produkTable).where(eq(produkTable.id, Number(req.params.id)));
+  res.json({ message: "Produk dihapus" });
+});
+
 export default router;

@@ -1,9 +1,12 @@
+import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useListAktivitas } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { formatDate } from "@/lib/format";
-import { Activity, Shield, Clock, Database, User } from "lucide-react";
+import { Activity, Shield, Clock, Database, User, Eye } from "lucide-react";
 
 const AKSI_COLOR: Record<string, string> = {
   CREATE: "bg-green-50 text-green-700 border-green-200",
@@ -21,12 +24,20 @@ const TABLE_ICONS: Record<string, React.ElementType> = {
   produk:    Database,
 };
 
+function tryParseJson(s: string) {
+  try { return JSON.parse(s); } catch { return null; }
+}
+
 export default function PengawasAktivitas() {
   const { user } = useAuth();
+  const [detailLog, setDetailLog] = useState<any | null>(null);
+
   const { data: aktivitasList, isLoading } = useListAktivitas(
     { koperasiId: user?.koperasiId ?? undefined },
     { query: { queryKey: [], enabled: !!user?.koperasiId } }
   );
+
+  const parsedDetail = detailLog ? tryParseJson(detailLog.detail ?? "") : null;
 
   return (
     <div className="page-animate space-y-6">
@@ -90,7 +101,7 @@ export default function PengawasAktivitas() {
             </div>
             <div>
               <CardTitle className="text-base font-semibold">Riwayat Aktivitas</CardTitle>
-              <CardDescription className="text-xs mt-0.5">Log transaksi dan perubahan data</CardDescription>
+              <CardDescription className="text-xs mt-0.5">Klik baris untuk melihat detail perubahan data</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -104,20 +115,21 @@ export default function PengawasAktivitas() {
                   <TableHead>Aksi</TableHead>
                   <TableHead>Tabel</TableHead>
                   <TableHead className="pr-4">Detail</TableHead>
+                  <TableHead></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {isLoading ? (
                   Array.from({ length: 8 }).map((_, i) => (
                     <TableRow key={i}>
-                      {Array.from({ length: 5 }).map((_, j) => (
+                      {Array.from({ length: 6 }).map((_, j) => (
                         <TableCell key={j}><div className="skeleton h-4 w-full" /></TableCell>
                       ))}
                     </TableRow>
                   ))
                 ) : !aktivitasList || aktivitasList.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5}>
+                    <TableCell colSpan={6}>
                       <div className="flex flex-col items-center justify-center py-16 text-center">
                         <Activity className="h-12 w-12 text-muted-foreground/20 mb-3 empty-state-icon" />
                         <p className="font-medium text-muted-foreground">Belum ada log aktivitas.</p>
@@ -129,7 +141,11 @@ export default function PengawasAktivitas() {
                   aktivitasList.map((log) => {
                     const TabelIcon = TABLE_ICONS[log.tabel] || Database;
                     return (
-                      <TableRow key={log.id} className="hover:bg-muted/30 transition-colors">
+                      <TableRow
+                        key={log.id}
+                        className="hover:bg-muted/30 transition-colors cursor-pointer"
+                        onClick={() => setDetailLog(log)}
+                      >
                         <TableCell className="pl-4 whitespace-nowrap text-sm text-muted-foreground">
                           {formatDate(log.waktu)}
                         </TableCell>
@@ -157,8 +173,13 @@ export default function PengawasAktivitas() {
                             )}
                           </div>
                         </TableCell>
-                        <TableCell className="pr-4 text-sm text-muted-foreground max-w-[280px]">
+                        <TableCell className="pr-2 text-sm text-muted-foreground max-w-[200px]">
                           <span className="truncate block">{log.detail || "—"}</span>
+                        </TableCell>
+                        <TableCell className="pr-4">
+                          <Button variant="ghost" size="sm" className="h-7 w-7 p-0 btn-icon-sm text-muted-foreground hover:text-foreground">
+                            <Eye className="h-3.5 w-3.5" />
+                          </Button>
                         </TableCell>
                       </TableRow>
                     );
@@ -174,6 +195,62 @@ export default function PengawasAktivitas() {
           )}
         </CardContent>
       </Card>
+
+      {/* Detail log modal */}
+      <Dialog open={!!detailLog} onOpenChange={(open) => !open && setDetailLog(null)}>
+        <DialogContent className="sm:max-w-[520px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Shield className="h-5 w-5" />
+              Detail Aktivitas
+            </DialogTitle>
+          </DialogHeader>
+          {detailLog && (
+            <div className="space-y-4 text-sm">
+              <div className="grid grid-cols-2 gap-x-4 gap-y-2.5 bg-muted/40 rounded-xl p-3.5">
+                <div className="text-muted-foreground">Waktu</div>
+                <div className="font-medium">{formatDate(detailLog.waktu)}</div>
+                <div className="text-muted-foreground">Pengguna</div>
+                <div className="font-medium">{detailLog.namaUser || "Sistem"}</div>
+                <div className="text-muted-foreground">Aksi</div>
+                <div>
+                  <span className={`inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-semibold ${
+                    AKSI_COLOR[detailLog.aksi?.toUpperCase()] || "bg-muted text-muted-foreground border-border"
+                  }`}>
+                    {detailLog.aksi?.toUpperCase()}
+                  </span>
+                </div>
+                <div className="text-muted-foreground">Tabel</div>
+                <div className="font-medium capitalize">{detailLog.tabel}</div>
+                {detailLog.referensiId && (
+                  <>
+                    <div className="text-muted-foreground">ID Referensi</div>
+                    <div className="font-mono font-medium">#{detailLog.referensiId}</div>
+                  </>
+                )}
+              </div>
+
+              <div>
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Detail Perubahan</p>
+                {parsedDetail ? (
+                  <div className="divide-y border rounded-xl overflow-hidden bg-card">
+                    {Object.entries(parsedDetail).map(([key, value]) => (
+                      <div key={key} className="flex items-start gap-3 px-3.5 py-2.5">
+                        <span className="text-muted-foreground font-mono text-xs w-28 shrink-0 pt-0.5">{key}</span>
+                        <span className="font-medium break-all">{String(value)}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="rounded-xl border bg-muted/20 p-3.5 font-mono text-xs text-muted-foreground whitespace-pre-wrap break-all">
+                    {detailLog.detail || "Tidak ada detail"}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

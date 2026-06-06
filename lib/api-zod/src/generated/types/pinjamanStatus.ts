@@ -11,6 +11,7 @@ export type PinjamanStatus = typeof PinjamanStatus[keyof typeof PinjamanStatus];
 
 export const PinjamanStatus = {
   pending: 'pending',
+  aktif: 'aktif',
   disetujui: 'disetujui',
   ditolak: 'ditolak',
   lunas: 'lunas',

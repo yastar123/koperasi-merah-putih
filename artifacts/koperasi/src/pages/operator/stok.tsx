@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
-import { useListProduk, useUpdateProduk, useCreateProduk, useListUnitUsaha } from "@workspace/api-client-react";
+import { useListProduk, useUpdateProduk, useCreateProduk, useDeleteProduk, useListUnitUsaha } from "@workspace/api-client-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatRupiah } from "@/lib/format";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Plus, Edit2, Package, AlertTriangle, Store } from "lucide-react";
+import { Search, Plus, Edit2, Package, AlertTriangle, Store, Trash2 } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -37,6 +38,7 @@ export default function OperatorStok() {
   const [selectedUnitId, setSelectedUnitId] = useState<number | null>(null);
   const [createGambarUrl, setCreateGambarUrl] = useState<string | null>(null);
   const [editGambarUrl, setEditGambarUrl] = useState<string | null>(null);
+  const [deleteProdukTarget, setDeleteProdukTarget] = useState<any | null>(null);
 
   const { data: unitList, isLoading: isLoadingUnits } = useListUnitUsaha(
     { koperasiId: user?.koperasiId ?? undefined },
@@ -65,6 +67,19 @@ export default function OperatorStok() {
       },
       onError: () => {
         toast({ title: "Gagal memperbarui produk", variant: "destructive" });
+      }
+    }
+  });
+
+  const deleteProduk = useDeleteProduk({
+    mutation: {
+      onSuccess: () => {
+        toast({ title: "Produk berhasil dihapus" });
+        setDeleteProdukTarget(null);
+        refetch();
+      },
+      onError: () => {
+        toast({ title: "Gagal menghapus produk", variant: "destructive" });
       }
     }
   });
@@ -255,10 +270,15 @@ export default function OperatorStok() {
                         {produk.stok <= 5 && <AlertTriangle className="inline h-3 w-3 text-red-500 ml-1" />}
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button variant="ghost" size="sm" onClick={() => openEditDialog(produk)} className="hover:text-primary">
-                          <Edit2 className="h-4 w-4 mr-1" />
-                          Edit
-                        </Button>
+                        <div className="flex items-center justify-end gap-1">
+                          <Button variant="ghost" size="sm" onClick={() => openEditDialog(produk)} className="hover:text-primary">
+                            <Edit2 className="h-4 w-4 mr-1" />
+                            Edit
+                          </Button>
+                          <Button variant="ghost" size="sm" onClick={() => setDeleteProdukTarget(produk)} className="hover:text-destructive text-muted-foreground">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))
@@ -340,6 +360,28 @@ export default function OperatorStok() {
           </Form>
         </DialogContent>
       </Dialog>
+
+      {/* Konfirmasi hapus produk */}
+      <AlertDialog open={!!deleteProdukTarget} onOpenChange={(open) => !open && setDeleteProdukTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Hapus Produk?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Produk <strong>{deleteProdukTarget?.nama}</strong> akan dihapus secara permanen dari sistem. Tindakan ini tidak dapat dibatalkan.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Batal</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+              onClick={() => deleteProduk.mutate({ id: deleteProdukTarget.id })}
+              disabled={deleteProduk.isPending}
+            >
+              {deleteProduk.isPending ? "Menghapus..." : "Ya, Hapus"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <Dialog open={openCreate} onOpenChange={setOpenCreate}>
         <DialogContent className="sm:max-w-[460px]">

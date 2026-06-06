@@ -132,7 +132,7 @@ export default function PengurusAnggotaDetail() {
               </CardHeader>
               <CardContent className="pb-4">
                 <div className="text-xl font-black stat-value text-red-600">
-                  {formatRupiah(pinjamanList?.filter(p => p.status === 'disetujui' || p.status === 'macet').reduce((acc, p) => acc + (p.sisaPinjaman || 0), 0) || 0)}
+                  {formatRupiah(pinjamanList?.filter(p => p.status === 'aktif' || p.status === 'macet').reduce((acc, p) => acc + (p.sisaPinjaman || 0), 0) || 0)}
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">Sisa hutang berjalan</p>
               </CardContent>

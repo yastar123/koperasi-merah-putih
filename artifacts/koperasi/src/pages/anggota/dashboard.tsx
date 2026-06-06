@@ -35,7 +35,7 @@ export default function AnggotaDashboard() {
     );
   }
 
-  const pinjamanAktif = pinjaman?.find(p => p.status === "disetujui" || p.status === "macet");
+  const pinjamanAktif = pinjaman?.find(p => p.status === "aktif" || p.status === "disetujui" || p.status === "macet");
   const pinjamanPending = pinjaman?.find(p => p.status === "pending");
 
   return (

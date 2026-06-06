@@ -30,6 +30,7 @@ import type {
   BayarAngsuranInput,
   DashboardNasional,
   DashboardStats,
+  DeleteProduk200,
   GetAktivitasTerbaruParams,
   GetDashboardStatsParams,
   GetLaporanAuditParams,
@@ -2436,6 +2437,76 @@ export const useCreateProduk = <TError = ErrorType<unknown>,
         TContext
       > => {
       return useMutation(getCreateProdukMutationOptions(options));
+    }
+
+export const getDeleteProdukUrl = (id: number,) => {
+
+
+
+
+  return `/api/produk/${id}`
+}
+
+/**
+ * @summary Hapus produk
+ */
+export const deleteProduk = async (id: number, options?: RequestInit): Promise<DeleteProduk200> => {
+
+  return customFetch<DeleteProduk200>(getDeleteProdukUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+export const getDeleteProdukMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteProduk>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteProduk>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['deleteProduk'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteProduk>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  deleteProduk(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteProdukMutationResult = NonNullable<Awaited<ReturnType<typeof deleteProduk>>>
+
+    export type DeleteProdukMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Hapus produk
+ */
+export const useDeleteProduk = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteProduk>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteProduk>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getDeleteProdukMutationOptions(options));
     }
 
 export const getUpdateProdukUrl = (id: number,) => {

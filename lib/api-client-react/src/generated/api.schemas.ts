@@ -256,6 +256,7 @@ export type PinjamanStatus = typeof PinjamanStatus[keyof typeof PinjamanStatus];
 
 export const PinjamanStatus = {
   pending: 'pending',
+  aktif: 'aktif',
   disetujui: 'disetujui',
   ditolak: 'ditolak',
   lunas: 'lunas',
@@ -586,6 +587,10 @@ jenis?: string;
 export type ListProdukParams = {
 unitUsahaId?: number;
 kategori?: string;
+};
+
+export type DeleteProduk200 = {
+  message?: string;
 };
 
 export type ListTransaksiParams = {

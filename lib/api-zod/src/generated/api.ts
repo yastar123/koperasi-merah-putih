@@ -502,7 +502,7 @@ export const ListPinjamanResponseItem = zod.object({
   "tenorBulan": zod.number(),
   "angsuranPerBulan": zod.number().optional(),
   "tujuan": zod.string().nullish(),
-  "status": zod.enum(['pending', 'disetujui', 'ditolak', 'lunas', 'macet']),
+  "status": zod.enum(['pending', 'aktif', 'disetujui', 'ditolak', 'lunas', 'macet']),
   "tanggalPengajuan": zod.string(),
   "tanggalDisetujui": zod.string().nullish(),
   "tanggalJatuhTempo": zod.string().nullish(),
@@ -539,7 +539,7 @@ export const GetPinjamanResponse = zod.object({
   "tenorBulan": zod.number(),
   "angsuranPerBulan": zod.number().optional(),
   "tujuan": zod.string().nullish(),
-  "status": zod.enum(['pending', 'disetujui', 'ditolak', 'lunas', 'macet']),
+  "status": zod.enum(['pending', 'aktif', 'disetujui', 'ditolak', 'lunas', 'macet']),
   "tanggalPengajuan": zod.string(),
   "tanggalDisetujui": zod.string().nullish(),
   "tanggalJatuhTempo": zod.string().nullish(),
@@ -571,7 +571,7 @@ export const SetujuiPinjamanResponse = zod.object({
   "tenorBulan": zod.number(),
   "angsuranPerBulan": zod.number().optional(),
   "tujuan": zod.string().nullish(),
-  "status": zod.enum(['pending', 'disetujui', 'ditolak', 'lunas', 'macet']),
+  "status": zod.enum(['pending', 'aktif', 'disetujui', 'ditolak', 'lunas', 'macet']),
   "tanggalPengajuan": zod.string(),
   "tanggalDisetujui": zod.string().nullish(),
   "tanggalJatuhTempo": zod.string().nullish(),
@@ -689,6 +689,18 @@ export const CreateProdukBody = zod.object({
 })
 
 export const CreateProdukResponse = zod.void()
+
+
+/**
+ * @summary Hapus produk
+ */
+export const DeleteProdukParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteProdukResponse = zod.object({
+  "message": zod.string().optional()
+})
 
 
 export const UpdateProdukParams = zod.object({

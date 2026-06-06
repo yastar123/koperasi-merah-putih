@@ -1,11 +1,11 @@
 import { useAuth } from "@/hooks/use-auth";
-import { useListProduk, useCreateTransaksi, useListUnitUsaha } from "@workspace/api-client-react";
+import { useListProduk, useCreateTransaksi, useListUnitUsaha, useListAnggota } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { formatRupiah } from "@/lib/format";
-import { useState, useEffect } from "react";
-import { Search, ShoppingCart, Plus, Minus, Trash2, Store } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Search, ShoppingCart, Plus, Minus, Trash2, Store, User, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -19,6 +19,10 @@ export default function OperatorPOS() {
   );
 
   const [selectedUnitId, setSelectedUnitId] = useState<number | null>(null);
+  const [memberSearch, setMemberSearch] = useState("");
+  const [selectedAnggota, setSelectedAnggota] = useState<any | null>(null);
+  const [showMemberDropdown, setShowMemberDropdown] = useState(false);
+  const memberRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (unitList && unitList.length > 0 && selectedUnitId === null) {
@@ -32,6 +36,16 @@ export default function OperatorPOS() {
     { unitUsahaId },
     { query: { queryKey: [], enabled: unitUsahaId > 0 } }
   );
+
+  const { data: anggotaList } = useListAnggota(
+    { koperasiId: user?.koperasiId ?? undefined },
+    { query: { queryKey: [], enabled: !!user?.koperasiId && memberSearch.length >= 2 } }
+  );
+
+  const filteredAnggota = anggotaList?.filter(a =>
+    a.nama.toLowerCase().includes(memberSearch.toLowerCase()) ||
+    a.nomorAnggota?.toLowerCase().includes(memberSearch.toLowerCase())
+  ).slice(0, 8) ?? [];
 
   const [cart, setCart] = useState<{produk: any, qty: number}[]>([]);
   const [search, setSearch] = useState("");
@@ -79,8 +93,11 @@ export default function OperatorPOS() {
   const createTransaksi = useCreateTransaksi({
     mutation: {
       onSuccess: () => {
-        toast({ title: "✓ Transaksi berhasil!", description: `Total: ${formatRupiah(totalBelanja)}` });
+        const anggotaLabel = selectedAnggota ? selectedAnggota.nama : "Umum";
+        toast({ title: "✓ Transaksi berhasil!", description: `${anggotaLabel} · Total: ${formatRupiah(totalBelanja)}` });
         setCart([]);
+        setSelectedAnggota(null);
+        setMemberSearch("");
       },
       onError: () => {
         toast({ title: "Gagal menyimpan transaksi", variant: "destructive" });
@@ -93,6 +110,7 @@ export default function OperatorPOS() {
     createTransaksi.mutate({
       data: {
         unitUsahaId,
+        anggotaId: selectedAnggota?.id ?? undefined,
         tanggal: new Date().toISOString(),
         items: cart.map(item => ({ produkId: item.produk.id, qty: item.qty }))
       }
@@ -211,6 +229,62 @@ export default function OperatorPOS() {
               )}
             </CardTitle>
           </CardHeader>
+
+          {/* Member selection */}
+          <div className="px-4 pt-3 pb-2 border-b shrink-0">
+            <p className="text-xs font-semibold text-muted-foreground mb-1.5">Pelanggan</p>
+            {selectedAnggota ? (
+              <div className="flex items-center justify-between bg-primary/5 border border-primary/20 rounded-lg px-3 py-2">
+                <div className="flex items-center gap-2 text-sm min-w-0">
+                  <div className="h-6 w-6 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+                    <User className="h-3 w-3 text-primary" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="font-semibold truncate text-sm">{selectedAnggota.nama}</div>
+                    <div className="text-xs text-muted-foreground">{selectedAnggota.nomorAnggota}</div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => { setSelectedAnggota(null); setMemberSearch(""); }}
+                  className="text-muted-foreground hover:text-foreground transition-colors ml-2 shrink-0"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            ) : (
+              <div ref={memberRef} className="relative">
+                <div className="relative">
+                  <User className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                  <Input
+                    className="pl-8 h-8 text-sm"
+                    placeholder="Cari anggota... (opsional)"
+                    value={memberSearch}
+                    onChange={(e) => { setMemberSearch(e.target.value); setShowMemberDropdown(true); }}
+                    onFocus={() => setShowMemberDropdown(true)}
+                    onBlur={() => setTimeout(() => setShowMemberDropdown(false), 200)}
+                  />
+                </div>
+                {showMemberDropdown && memberSearch.length >= 2 && filteredAnggota.length > 0 && (
+                  <div className="absolute top-full left-0 right-0 z-10 mt-1 border rounded-lg overflow-hidden shadow-md bg-popover divide-y max-h-48 overflow-y-auto">
+                    {filteredAnggota.map(a => (
+                      <button
+                        key={a.id}
+                        className="w-full text-left px-3 py-2 hover:bg-accent transition-colors text-sm"
+                        onMouseDown={() => { setSelectedAnggota(a); setMemberSearch(""); setShowMemberDropdown(false); }}
+                      >
+                        <div className="font-medium">{a.nama}</div>
+                        <div className="text-xs text-muted-foreground">{a.nomorAnggota}</div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {!selectedAnggota && !memberSearch && (
+                  <p className="text-xs text-muted-foreground mt-1">Kosongkan untuk transaksi umum</p>
+                )}
+              </div>
+            )}
+          </div>
+
           <CardContent className="flex-1 overflow-y-auto p-4 space-y-2.5 min-h-0">
             {cart.length === 0 ? (
               <div className="flex h-full flex-col items-center justify-center text-muted-foreground text-center py-12">
@@ -259,6 +333,9 @@ export default function OperatorPOS() {
               <div className="w-full space-y-1.5 text-sm">
                 <div className="flex justify-between text-muted-foreground">
                   <span>{cart.reduce((s, i) => s + i.qty, 0)} item</span>
+                  {selectedAnggota && (
+                    <span className="text-primary font-medium">{selectedAnggota.nama}</span>
+                  )}
                 </div>
                 <div className="flex justify-between font-bold text-lg pt-1 border-t border-border/50">
                   <span>Total</span>
